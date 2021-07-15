@@ -16,6 +16,11 @@ const ProfileApi={
         return axios.get('https://plattero.com/api/V1/orders/mine', {
             headers:{Authorization:`Bearer ${Config.API_TOKEN}`}
         })
+    },
+    orderDetail:(_id)=>{
+        return axios.get(`https://plattero.com/api/V1/orders/mine/${_id}`, {
+            headers:{Authorization:`Bearer ${Config.API_TOKEN}`}
+        })
     }
 
 }

@@ -1556,3 +1556,36 @@ p{
 .address-box-extra{
     height:180px !important;
 }
+.off-canvas-bg{
+    height:100vh;
+    z-index:400;
+    position:fixed;
+    top:0;
+    right:0;
+    width:100vw;
+}
+.off-canvas{
+    background-color:#ffffff;
+    
+}
+
+.off-canvas-container{
+    overflow-y:scroll;
+    overflow-x:hidden;
+    max-height:500px;
+}
+.off-canvas-shadow{
+  background-color:rgba(0, 0, 0, 0.637);
+}
+.dashed-left-border{
+    margin-top:10px;
+    border-left:4px dashed #f32129;
+    padding-left:15px;
+    margin-left:10px;
+}
+
+.line-breaker{
+    height:5px;
+    background-color: #f32129;
+    margin-bottom:10px;
+}

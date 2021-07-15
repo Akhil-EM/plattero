@@ -3,6 +3,7 @@ import OrderCard from '../common/OrderCard';
 import {ProfileApi} from '../../API/Profile.API';
 import {Col,Button,Spinner} from 'react-bootstrap';
 import Config from '../../CONFIG';
+
 class Orders extends React.Component {
     constructor(props) {
 		super(props)
@@ -33,18 +34,20 @@ class Orders extends React.Component {
 	
 	render() {
 		let orderList=this.state.orderList;
-		console.log(orderList)
+		// console.log(orderList)
     	return (
-    		<>  
+    		<React.Fragment>  
+                
     		    <div className='p-4 bg-white shadow-sm'>
+
 	              <h4 className="font-weight-bold mt-0 mb-4">Past Orders</h4>
 				 {  
 				    this.state.orderListLoading &&
 					<div>
-						<Col md={12} className="text-center load-more" >
+					<Col md={12} className="text-center load-more" >
 							<Button variant="primary" type="button" disabled="">
-										<Spinner animation="grow" size="sm" className='mr-1' />
-										Loading...
+								<Spinner animation="grow" size="sm" className='mr-1' />
+								Loading...
 							</Button>  
 					</Col>
 					<div style={{height:'200px'}}/>
@@ -62,6 +65,7 @@ class Orders extends React.Component {
 							itemList={item.items}
 							image={item.items[0].menu_image}
 							imageAlt=''
+							id={item.id}
 							orderNumber={item.order_number}
 							orderDate={item.placed}
 							deliveredStatus={item.status_text}
@@ -75,7 +79,7 @@ class Orders extends React.Component {
 						
 	            }
 			    </div>
-		    </>
+		    </React.Fragment>
     	);
     }
 }

@@ -3,22 +3,59 @@ import PropTypes from 'prop-types';
 import {Link } from 'react-router-dom';
 import {Image,Media} from 'react-bootstrap';
 import Icofont from 'react-icofont';
-// import OrderDetail from '../offcanvas/OrderDetail';
-import { faTemperatureHigh } from '@fortawesome/free-solid-svg-icons';
+import OrderDetail from '../offcanvas/OrderDetail';
+import {ProfileApi} from '../../API/Profile.API';
 class OrderCard extends React.Component {
     constructor(props) {
 		super(props)
 	
-		this.state = {
-			 showDetail:false
+		this.state ={
+			showDetail:false,
+			orderId:'',
+			restaurantDetail:{},
+			deliveryAddress:'',
+			items:[],
+	        orderHistory:[],
+			total:'',
+			discount:''
+
 		}
 	}
 	handleClose = () =>this.setState({showDetail:false});
-    handleShow = () =>this.setState({showDetail:faTemperatureHigh});
+    handleShow = (_id)=>{
+		this.setState({showDetail:true});
+        ProfileApi.orderDetail(_id)
+		          .then((response)=>{
+					  console.log(response.data.data.order);
+					  this.setState({
+						orderId:response.data.data.order.order_number,
+						restaurantDetail:response.data.data.order.restuarant,
+						deliveryAddress:response.data.data.order.address,
+						items:response.data.data.order.items,
+						orderHistory:response.data.data.order.order_history,
+						total:response.data.data.order.total,
+						discount:response.data.data.order.discount
+					  })
+				  }).catch((error)=>{
+					  console.log(error);
+				  })
+
+		this.setState({showDetail:true});
+		console.log(_id)
+    }
 	
 	render() {
     	return (
 	      <div className="bg-white card mb-4 order-list shadow-sm">
+			  <OrderDetail DetailsShow={this.state.showDetail} 
+			               onHide={this.handleClose}
+						   orderId={this.state.orderId}
+						   restaurantDetail={this.state.restaurantDetail}
+						   deliveryAddress={this.state.deliveryAddress}
+						   items={this.state.deliveryAddress.items}
+						   orderHistory={this.state.orderHistory}
+						   total={this.state.total}
+						   discount={this.state.discount}/>
 	          <div className="gold-members p-4">
 	                <Media>
 	                   <Image className="mr-4" src={this.props.image} alt={this.props.imageAlt} />
@@ -53,8 +90,8 @@ class OrderCard extends React.Component {
 	                      
 	                      <hr />
 	                      <div className="">
-		                      <Link className="btn btn-sm btn-outline-primary mr-1 " to={this.props.helpLink}><Icofont icon="headphone-alt" /> HELP</Link>
-		                      <Link className="btn btn-sm btn-primary" to={this.props.detailLink}><Icofont icon="info-circle" className='pr-1'/> ORDER DETAILS</Link>
+		                      <Link className="btn btn-sm btn-outline-primary mr-1 mt-1" to={this.props.helpLink}><Icofont icon="headphone-alt" /> HELP</Link>
+		                      <button className="btn btn-sm btn-primary mt-1" to='' onClick={()=>this.handleShow(this.props.id)}><Icofont icon="info-circle" className='pr-1'/> ORDER DETAILS</button>
 	                      </div>
 	                      <p className="mb-0 text-black text-primary pt-2 float-right">
 	                      	<span className="text-black font-weight-bold"> Total Paid:</span> {this.props.orderTotal}
@@ -62,7 +99,7 @@ class OrderCard extends React.Component {
 	                   </Media.Body>
 	                </Media>
 	          </div>
-			  {/* <OrderDetail DetailsShow={this.state.DetailsShow} onHide={this.handleClose}/> */}
+			  
 	       </div>
     	);
     }
