@@ -1,9 +1,121 @@
 import React from 'react';
-import {Form,InputGroup,Modal,ButtonToolbar,Button,ToggleButton,ToggleButtonGroup} from 'react-bootstrap';
-import Icofont from 'react-icofont';
+import {Form,InputGroup,Modal,FormControl,Button} from 'react-bootstrap';
+import {ProfileApi} from '../../API/Profile.API'
 
 class AddAddressModal extends React.Component {
+    constructor(props) {
+		super(props)
+	
+		this.state = {
+			 firstName:'',
+			 lastName:'',
+			 addressLine1:'',
+			 addressLine2:'',
+			 city:'',
+			 pincode:'',
+			 state:'',
+			 country:'IN',
+			 firstNameError:false,
+			 lastNameError:false,
+			 addressLine1Error:false,
+			 addressLine2Error:false,
+			 cityError:false,
+			 pincodeError:false,
+			 stateError:false,
+			 invalidPincodeError:false
+		}
+	}
+    
+	submitForm=()=>{
+        if(!this.validateForm()){
+			ProfileApi.addNewAddress(this.state.firstName,this.state.lastName,
+				                     this.state.addressLine1,this.state.addressLine2,
+									 this.state.city,this.state.state,this.state.country,
+									 this.state.pincode)
+					  .then(()=>{
+						  this.setState({ firstName:'',
+										lastName:'',
+										addressLine1:'',
+										addressLine2:'',
+										city:'',
+										pincode:'',
+										state:'',
+										country:'IN',
+										firstNameError:false,
+										lastNameError:false,
+										addressLine1Error:false,
+										addressLine2Error:false,
+										cityError:false,
+										pincodeError:false,
+										stateError:false,
+										invalidPincodeError:false},
+								()=>{
+                                    this.props.renderParent();
+						            this.props.onHide();
+								})
+                          
+					  }).catch((error)=>{
+						  console.log(error);
+					  })
+		}
+	}
+    
+	validateForm=()=>{
+		let formError=false;
+		this.setState({
+			firstNameError:false,
+			lastNameError:false,
+			addressLine1Error:false,
+			addressLine2Error:false,
+			cityError:false,
+			pincodeError:false,
+			stateError:false,
+			invalidPincodeError:false});
 
+		if(!this.state.firstName){
+			formError=true;
+			this.setState({firstNameError:true});
+		}
+		if(!this.state.lastName){
+			formError=true;
+			this.setState({lastNameError:true});
+		}
+		if(!this.state.addressLine1){
+			formError=true;
+			this.setState({addressLine1Error:true});
+		}
+		if(!this.state.addressLine2){
+			formError=true;
+			this.setState({addressLine2Error:true});
+		}
+		if(!this.state.city){
+			formError=true;
+			this.setState({cityError:true});
+		}
+		if(!this.state.pincode){
+			formError=true;
+			this.setState({pincodeError:true});
+		}
+
+		if((this.state.pincode).length !=6){
+			formError=true;
+			this.setState({pincodeError:true,
+				           invalidPincodeError:true});
+		}
+        if(!this.state.state){
+			formError=true;
+			this.setState({stateError:true});
+		}
+	    return formError;
+	}
+   
+
+
+
+	onInputItemChange=(e)=>{
+        this.setState({[e.target.name]:e.target.value});
+    }
+	
 	render() {
     	return (
 	        <Modal 
@@ -16,48 +128,95 @@ class AddAddressModal extends React.Component {
 			  </Modal.Header>
 
 			  <Modal.Body>
-  				<Form>
-             <div className="form-row">
-                <Form.Group className="col-md-12">
-                   <Form.Label>Delivery Area</Form.Label>
-                   <InputGroup>
-                      <Form.Control type="text" placeholder="Delivery Area" />
-                      <InputGroup.Append>
-                         <Button variant="outline-secondary" type="button" id="button-addon2"><Icofont icon="ui-pointer"/></Button>
-                      </InputGroup.Append>
-                   </InputGroup>
+			   <div style={{height:'160px',backgroundColor:'#0090bc48'}}/>
+  			<Form >
+             <div className="form-row pt-3">
+			    <Form.Group className="col-md-6">
+                   <Form.Label>First Name</Form.Label>
+                   <Form.Control type="text" 
+				                 placeholder="Enter first name" 
+								 value={this.state.firstName}
+								 onChange={this.onInputItemChange}
+								 name='firstName'
+								 className={this.state.firstNameError?'is-invalid':''}/>
                 </Form.Group>
-                <Form.Group className="col-md-12">
-                   <Form.Label>Complete Address</Form.Label>
-                   <Form.Control type="text" placeholder="Complete Address e.g. house number, street name, landmark" />
+                <Form.Group className="col-md-6">
+                   <Form.Label>Last Name</Form.Label>
+                   <Form.Control type="text" 
+				                 placeholder="Enter Last Name"
+								 value={this.state.lastName}
+								 onChange={this.onInputItemChange}
+								 name='lastName'
+								 className={this.state.lastNameError?'is-invalid':''}/>
                 </Form.Group>
-                <Form.Group className="col-md-12">
-                   <Form.Label>Delivery Instructions</Form.Label>
-                   <Form.Control type="text" placeholder="Delivery Instructions e.g. Opposite Gold Souk Mall" />
+                <Form.Group className="col-md-6">
+                   <Form.Label>Address Line 1</Form.Label>
+                   <Form.Control type="text" 
+				                 placeholder="Enter address line 1"
+								 value={this.state.addressLine1}
+								 onChange={this.onInputItemChange}
+								 name='addressLine1'
+								 className={this.state.addressLine1Error?'is-invalid':''}/>
                 </Form.Group>
-                <Form.Group className="mb-0 col-md-12">
-                   <Form.Label>Nickname</Form.Label>
-                   <ButtonToolbar>
-                      <ToggleButtonGroup className="d-flex w-100" type="radio" name="options" defaultValue={1}>
-    							    <ToggleButton variant='info' value={1}>
-    							      Home
-    							    </ToggleButton>
-    							    <ToggleButton variant='info' value={2}>
-    							      Work
-    							    </ToggleButton>
-    							    <ToggleButton variant='info' value={3}>
-    							      Other
-    							    </ToggleButton>
-        					    </ToggleButtonGroup>
-    						  </ButtonToolbar>
+				<Form.Group className="col-md-6">
+                   <Form.Label>Address Line 2</Form.Label>
+                   <Form.Control type="text"
+				                 placeholder="Enter address line 2"
+								 value={this.state.addressLine2}
+								 onChange={this.onInputItemChange}
+								 name='addressLine2'
+								 className={this.state.addressLine2Error?'is-invalid':''}/>
                 </Form.Group>
+				<Form.Group className="col-md-6">
+                   <Form.Label>City</Form.Label>
+                   <Form.Control type="text"
+				                 placeholder="Enter city"
+								 value={this.state.city}
+								 onChange={this.onInputItemChange}
+								 name='city'
+								 className={this.state.cityError?'is-invalid':''}/>
+                </Form.Group>
+				<Form.Group className="col-md-6">
+                   <Form.Label>Pincode</Form.Label>
+                   <Form.Control type="number" 
+				                 placeholder="Enter pincode"
+								 value={this.state.pincode}
+								 onChange={this.onInputItemChange}
+								 name='pincode'
+								 className={`${this.state.pincodeError?'is-invalid':''} ${this.state.invalidPincodeError?'is-invalid':''}`}/>
+				  { this.state.invalidPincodeError &&
+					<p className='text-danger m-0' style={{lineHeight:'20px'}}>Invalid pincode</p>}
+                </Form.Group>
+				<Form.Group className="col-md-6">
+                   <Form.Label>State</Form.Label>
+                   <Form.Control type="text"
+				                 placeholder="Enter state"
+								 value={this.state.state}
+								 onChange={this.onInputItemChange}
+								 name='state'
+								 className={this.state.stateError?'is-invalid':''}/>
+                </Form.Group>
+				<Form.Group className="col-md-6">
+                   <Form.Label>Country</Form.Label>
+                   <select className="form-control"
+				            value={this.state.country}
+							onChange={this.onInputItemChange}
+							name='country'>
+					 <option defaultValue>IN</option>
+				   </select>
+                </Form.Group>
+
+                
              </div>
           </Form>      
 			  </Modal.Body>
 
 			  <Modal.Footer>
 			    <Button type='button' onClick={this.props.onHide} variant="outline-primary" className="d-flex w-50 text-center justify-content-center">CANCEL</Button>
-			    <Button type='button' variant="primary" className='d-flex w-50 text-center justify-content-center'>SUBMIT</Button>
+			    <Button type='button' 
+				        variant="primary" 
+				        className='d-flex w-50 text-center justify-content-center'
+						onClick={this.submitForm}>SUBMIT</Button>
 			  </Modal.Footer>
 			</Modal>
     	);

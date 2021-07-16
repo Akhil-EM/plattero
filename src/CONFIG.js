@@ -5,6 +5,7 @@ let token=localStorage.getItem('api_token')===null?"":localStorage.getItem('api_
 
 module.exports={
     APPLICATION_BASE_URL:'https://plattero.com/api/03879045/V1',
+    APPLICATION_URL_SECOND:'https://plattero.com/api/V1/',
     API_HEADERS:{
         'Content-type': 'application/json',
         "Access-Control-Allow-Origin":"*",

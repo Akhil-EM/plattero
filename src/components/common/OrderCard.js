@@ -17,7 +17,8 @@ class OrderCard extends React.Component {
 			items:[],
 	        orderHistory:[],
 			total:'',
-			discount:''
+			discount:'',
+			orderPlacedDate:''
 
 		}
 	}
@@ -26,7 +27,6 @@ class OrderCard extends React.Component {
 		this.setState({showDetail:true});
         ProfileApi.orderDetail(_id)
 		          .then((response)=>{
-					  console.log(response.data.data.order);
 					  this.setState({
 						orderId:response.data.data.order.order_number,
 						restaurantDetail:response.data.data.order.restuarant,
@@ -34,14 +34,14 @@ class OrderCard extends React.Component {
 						items:response.data.data.order.items,
 						orderHistory:response.data.data.order.order_history,
 						total:response.data.data.order.total,
-						discount:response.data.data.order.discount
+						discount:response.data.data.order.discount,
+						orderPlacedDate:response.data.data.order.placed
 					  })
 				  }).catch((error)=>{
 					  console.log(error);
 				  })
 
 		this.setState({showDetail:true});
-		console.log(_id)
     }
 	
 	render() {
@@ -52,7 +52,8 @@ class OrderCard extends React.Component {
 						   orderId={this.state.orderId}
 						   restaurantDetail={this.state.restaurantDetail}
 						   deliveryAddress={this.state.deliveryAddress}
-						   items={this.state.deliveryAddress.items}
+						   items={this.state.items}
+						   orderPlacedDate={this.state.orderPlacedDate}
 						   orderHistory={this.state.orderHistory}
 						   total={this.state.total}
 						   discount={this.state.discount}/>

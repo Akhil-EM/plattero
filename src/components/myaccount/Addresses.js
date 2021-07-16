@@ -1,9 +1,9 @@
 import React from 'react';
-import {Row,Col,Button} from 'react-bootstrap';
+import {Row,Col,Button,Spinner} from 'react-bootstrap';
 import AddAddressModal from '../modals/AddAddressModal';
 import DeleteAddressModal from '../modals/DeleteAddressModal';
 import AddressCard from '../common/AddressCard';
-import Icofont from 'react-icofont';
+import {ProfileApi} from '../../API/Profile.API'
 class Addresses extends React.Component {
 	constructor(props, context) {
 	    super(props, context);
@@ -11,17 +11,58 @@ class Addresses extends React.Component {
 	    this.state = {
 	      showDeleteModal: false,
       	  showAddressModal: false,
+		  customerAddressList:[],
+		  addressLoading:true,
+		  deleteAddressId:null
 	    };
 	}
 
+	componentDidMount(){
+        this.getInitialData();
+	}
+
+	getInitialData=()=>{
+		this.setState({addressLoading:true})
+        ProfileApi.getAddressList()
+		          .then((response)=>{
+					  console.log(response)
+					  this.setState({customerAddressList:response.data.data.customeraddress,
+					                 addressLoading:false});
+				  }).catch((error)=>{
+					  console.log(error.response);
+					  this.setState({addressLoading:false});
+				  })
+	}
+    
+	deleteAddress=()=>{
+		ProfileApi.deleteAddress(this.state.deleteAddressId)
+		          .then(()=>{
+					this.setState({showDeleteModal:false});
+					this.getInitialData();
+				  });
+	}
+	
+	showDeleteDialogue=(_deleteAddressId)=>{
+		this.setState({deleteAddressId:_deleteAddressId},
+			    ()=>{
+					this.setState({showDeleteModal: true },()=>{
+						console.log(this.state.deleteAddressId);
+					})
+				});
+		
+	}
     hideDeleteModal = () => this.setState({ showDeleteModal: false });
     hideAddressModal = () => this.setState({ showAddressModal: false });
 
 	render() {
     	return (
 	      <>
-	        <AddAddressModal show={this.state.showAddressModal} onHide={this.hideAddressModal}/>
-	        <DeleteAddressModal show={this.state.showDeleteModal} onHide={this.hideDeleteModal}/>
+		    {/* this.state.showAddressModal */}
+	        <AddAddressModal show={this.state.showAddressModal} onHide={this.hideAddressModal}
+			                 renderParent={this.getInitialData}/>
+	        <DeleteAddressModal show={this.state.showDeleteModal} 
+			                    onHide={this.hideDeleteModal}
+								deleteAddress={this.deleteAddress}/>
 		    <div className='p-4 bg-white shadow-sm'>
               <Row>
                <Col md={12}>
@@ -32,73 +73,33 @@ class Addresses extends React.Component {
 				  Add New Address
 				</Button>
                </Col>
-               <Col md={6}>
-				   {/* border border-primary shadow */}
-               	  <AddressCard 
-               	  	  boxClass="shadow-sm address-box-extra"
-					  title= 'Home'
-					  icoIcon= 'ui-home'
-					  iconclassName= 'icofont-3x'
-					  address= 'Osahan House, Jawaddi Kalan, Ludhiana, Punjab 141002, India'
-					  onEditClick= {() => this.setState({ showAddressModal: true })}
-					  onDeleteClick={() => this.setState({ showDeleteModal: true })}
-               	  />
-               </Col>
-               <Col md={6}>
-               	  <AddressCard 
-               	  	  boxClass="shadow-sm"
-					  title= 'Work'
-					  icoIcon= 'briefcase'
-					  iconclassName= 'icofont-3x'
-					  address= 'NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India'
-					  onEditClick= {() => this.setState({ showAddressModal: true })}
-					  onDeleteClick={() => this.setState({ showDeleteModal: true })}
-               	  />
-               </Col>
-               <Col md={6}>
-               	  <AddressCard 
-               	  	  boxClass="shadow-sm"
-					  title= 'Other'
-					  icoIcon= 'location-pin'
-					  iconclassName= 'icofont-3x'
-					  address= 'Delhi Bypass Rd, Jawaddi Taksal, Ludhiana, Punjab 141002, India'
-					  onEditClick= {() => this.setState({ showAddressModal: true })}
-					  onDeleteClick={() => this.setState({ showDeleteModal: true })}
-               	  />
-               </Col>
-               <Col md={6}>
-               	  <AddressCard 
-               	  	  boxClass="shadow-sm"
-					  title= 'Other'
-					  icoIcon= 'location-pin'
-					  iconclassName= 'icofont-3x'
-					  address= 'MT, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India'
-					  onEditClick= {() => this.setState({ showAddressModal: true })}
-					  onDeleteClick={() => this.setState({ showDeleteModal: true })}
-               	  />
-               </Col>
-               <Col md={6}>
-               	  <AddressCard 
-               	  	  boxClass="shadow-sm"
-					  title= 'Other'
-					  icoIcon= 'location-pin'
-					  iconclassName= 'icofont-3x'
-					  address= 'GNE Rd, Jawaddi Taksal, Ludhiana, Punjab 141002, India'
-					  onEditClick= {() => this.setState({ showAddressModal: true })}
-					  onDeleteClick={() => this.setState({ showDeleteModal: true })}
-               	  />
-               </Col>
-               <Col md={6}>
-               	  <AddressCard 
-               	  	  boxClass="shadow-sm"
-					  title= 'Other'
-					  icoIcon= 'location-pin'
-					  iconclassName= 'icofont-3x'
-					  address= 'GTTT, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India'
-					  onEditClick= {() => this.setState({ showAddressModal: true })}
-					  onDeleteClick={() => this.setState({ showDeleteModal: true })}
-               	  />
-               </Col>
+			   {this.state.addressLoading &&
+                    <Col md={12} className="text-center load-more mt-3" >
+                      <Button variant="primary" type="button" disabled="">
+                        <Spinner animation="grow" size="sm" className='mr-1' />
+                         Loading...
+                        </Button>  
+                    <div style={{height:'200px'}}/>
+                </Col>}
+             
+			   {
+				 !this.state.addressLoading &&
+				 this.state.customerAddressList.map((item,key)=>(
+					<Col md={6} key={key}>
+					  <AddressCard 
+						boxClass="shadow-sm address-box-extra"
+						title={item.first_name+' '+item.last_name}
+						icoIcon= 'location-pin'
+						iconclassName= 'icofont-3x'
+						address={item.add_line1+' , '+item.add_line2+' , '+item.pincode+' , '+item.add_city+' , '+item.add_state+' , '+item.add_country}
+						onEditClick= {() => this.setState({ showAddressModal: true })}
+						onDeleteClick={() => this.showDeleteDialogue(item.id)}
+					  />
+				   </Col>
+				 ))
+			   }
+               
+              
               </Row>
 		    </div>
 	      </>

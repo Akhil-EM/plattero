@@ -71,19 +71,30 @@ class OrderDetail extends Component {
                         <hr/>
                         <div className='d-flex'>
                            <Icofont icon="tick-mark" className='text-success' style={{fontSize:'2em'}}/>
-                           <p>Placed On Jul 13,09:29 AM</p>
+                           <p>Placed On {this.props.orderPlacedDate}</p>
                         </div>
                         <hr style={{margin:'5px'}}/>
-                        <div className='d-flex'>
-                           <Icofont icon="tick-mark" className='text-success' style={{fontSize:'2em'}}/>
-                           <p>Waiting for Confirmation Jul 15,02:31 PM</p>
-                        </div>
+                        {
+                           this.props.orderHistory.map((item,key)=>(
+                              <div className='d-flex' key={key}>
+                               <Icofont icon="tick-mark" className='text-success' style={{fontSize:'2em'}}/>
+                               <p>{item.status}  {item.status_date}</p>
+                              </div>
+                           ))
+                        }
+                        
                         <hr style={{margin:'5px'}}/>
                         <h6>Items</h6>
-                        <div className='d-flex justify-content-between'>
-                           <p>Vanila Ice Cream null x 3</p>
-                           <p>₹ 23.00</p>
-                        </div>
+                           {
+                              this.props.items.map((item,key)=>(
+                                 <div className='d-flex justify-content-between' key={key}>
+                                    <p>{item.item_name} X {item.qty}</p>
+                                    <p>{item.special_price}</p>
+                                 </div>
+                              ))
+                           }
+                          
+                      
                         <div className='line-breaker'/>
                         { this.props.discount===''?'':
                           <div className='d-flex justify-content-between'>
