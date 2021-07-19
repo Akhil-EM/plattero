@@ -103,10 +103,15 @@ img{
     text-align: center;
     width: 13px;
 }
+.dropdown-cart-top-body{
+    height:200px;
+    overflow-y: scroll;
+}
 .dropdown-cart-top-body .food-item {
     float: left;
     margin: 4px 10px 0 0;
     padding-left: 1px;
+    
 }
 /* login/Register */
 :root {
@@ -481,6 +486,8 @@ img{
 }
 .dropdown-menu {
     font-size: 13px;
+    right:0 !important;
+    left: auto !important;
 }
 .dropdown-item {
     border-radius: 0 !important;
@@ -1530,6 +1537,7 @@ p{
     border-radius:8px;
     border:1px solid rgba(15, 15, 15, 0.171);
     display:flex;
+    min-width:350px;
 }
 
 .header-search input{
@@ -1592,4 +1600,9 @@ p{
 
 .g{
     color: #0090bc48;
+}
+
+.max-width-and-height{
+    width:60px !important;
+    height:60px !important;
 }

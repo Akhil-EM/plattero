@@ -64,7 +64,32 @@ const ProfileApi={
         return http.delete(`${Config.APPLICATION_URL_SECOND}addresses/mine/${_addressId}`, {
             headers:{Authorization:`Bearer ${Config.API_TOKEN}`}
         })
-    }
+    },
+    updateAddress:(_firstName,_lastName,_addressLine1,
+        _addressLine2,_city,_state,_country,_pincode,_address_id)=>{
+        return http.put(`${Config.APPLICATION_URL_SECOND}addresses/mine/${_address_id}`,{
+            first_name:_firstName,
+            last_name:_lastName,
+            add_line1:_addressLine1,
+            add_line2:_addressLine2,
+            add_city:_city,
+            add_state:_state,
+            add_country:_country,
+            pincode:_pincode,
+            lattitude: "45",
+            longitude: "67"},
+            {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+    },
+    addToFavoriteRestaurantList:(_restaurantId)=>{
+         return http.post(Config.APPLICATION_URL_SECOND+'rest-wishlists/mine',{res_id:_restaurantId},
+        {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+    },
+    removeFromFavoriteRestaurantList:(_restaurantId)=>{
+        return http.delete(`${Config.APPLICATION_URL_SECOND}rest-wishlists/mine/${_restaurantId}`,
+       {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+   }
+
+
 
 }
 export  {ProfileApi};

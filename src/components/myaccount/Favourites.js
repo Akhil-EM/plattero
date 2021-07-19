@@ -17,8 +17,8 @@ class Favourites extends React.Component {
 		this.getInitialData();
 	}
 
-	getInitialData(){
-		this.setState({loaderDisplay:true});
+	getInitialData=()=>{
+		this.setState({loaderDisplay:true,favoriteList:[],});
 		ProfileApi.wishList()
 		          .then((response)=>{
 					  this.setState({favoriteList:response.data.data.items,
@@ -30,7 +30,6 @@ class Favourites extends React.Component {
 	}
 	
 	render() {
-		console.log(this.state.favoriteList)
     	return (
     		<>
     		    <div className='p-4 bg-white shadow-sm'>
@@ -50,22 +49,27 @@ class Favourites extends React.Component {
 						<div style={{height:'300px'}}/>
 					  </>
 					  }
-						{ 
-							(this.state.favoriteList).length <0?
-							<Col md={4} sm={6} className="mb-4 pb-2">
-								<p>No Favorite items found</p>
-							</Col>:''
-						}
 						{
+
+						    !this.state.loaderDisplay &&(this.state.favoriteList).length <=0 ?
+								<Col md={4} sm={6} className="mb-4 pb-2">
+									<p>No Favorite items found</p>
+								</Col>:''
+	                    }
+						{
+						   
+							
+							
 							this.state.favoriteList.map((item,key)=>(
 								<Col md={4} sm={6} className="mb-4 pb-2" key={key}>
 									<CardItem 
+									    id={item.id}
 										title={item.restaurant_name}
 										subTitle={item.res_description}
 										imageAlt='Product'
 										image={item.thumnail_img}
 										imageClass='img-fluid item-img'
-										linkUrl='detail'
+										linkUrl={`detail/${item.id}`}
 										offerText='65% off Coupon OSAHAN50'
 										offerColor='danger'
 										time={item.average_delivery_time}
@@ -74,6 +78,7 @@ class Favourites extends React.Component {
 										promotedVariant='dark'
 										favIcoIconColor='text-danger'
 										rating={item.res_rating}
+										renderParent={this.getInitialData}
 									/>
 								</Col>
 							))

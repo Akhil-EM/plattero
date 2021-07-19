@@ -1,6 +1,6 @@
 import React from 'react';
 import {NavLink,Link} from 'react-router-dom';
-import {Navbar,Nav,Container,NavDropdown,Image,Badge} from 'react-bootstrap';
+import {Navbar,Nav,Container,NavDropdown,Image,Badge, Spinner} from 'react-bootstrap';
 import DropDownTitle from '../common/DropDownTitle';
 import CartDropdownHeader from '../cart/CartDropdownHeader';
 import CartDropdownItem from '../cart/CartDropdownItem';
@@ -9,16 +9,38 @@ import Config from '../../CONFIG';
 import {MdLocationOn,MdSearch} from 'react-icons/md';
 import SetAddressModal from '../modals/SetAddressModal';
 import {withRouter} from 'react-router-dom';
+import { HeaderApi } from '../../API/Header.API';
+
 class Header extends React.Component {
 	constructor(props) {
 	    super(props);
 	    this.state = {
 	      isNavExpanded: false,
 		  showDeliveryAddressSelector:false,
-		  searchFor:''
+		  searchFor:'',
+		  loadingData:true,
+		  cart:{},
+		  cartItems:[]
+
 	    };
 	}
 
+	componentWillMount(){
+		this.getInitialData();
+	}
+    
+	getInitialData=()=>{
+		this.setState({loadingData:true});
+		HeaderApi.getCartData()
+		         .then((response)=>{
+					 this.setState({cart:response.data.data.cart,
+						            cartItems:response.data.data.cartitems,
+						            loadingData:false});
+				 }).catch((error)=>{
+					 console.log(error)
+					 this.setState({loadingData:false});
+				 })
+	}
     searchChanged=(event)=>this.setState({searchFor:event.target.value});
 	
 
@@ -137,54 +159,50 @@ class Header extends React.Component {
 			            	}>
                          
 			                <div className="dropdown-cart-top shadow-sm">
+							  { this.state.loadingData &&
+								<div className='text-center mt-5'>
+									<Spinner animation="grow" size="xl" />
+								</div>
+							  }
 			               	  {
+								!this.state.loadingData &&
 			               	  	<CartDropdownHeader 
 			               	  		className="dropdown-cart-top-header p-4" 
-			               	  		title="Gus's World Famous Chicken"
-			               	  		subTitle="310 S Front St, Memphis, USA"
-			               	  		image="img/cart.jpg"
+			               	  		title={this.state.cart.restaurant.name}
+			               	  		subTitle={this.state.cart.restaurant.address +" "+this.state.cart.restaurant.city}
+			               	  		image={this.state.cart.restaurant.logo}
 			               	  		imageClass="img-fluid mr-3"
 			               	  		imageAlt="osahan"
 			               	  		NavLinkUrl="#"
 			               	  		NavLinkText="View Full Menu"
 			               	    />
 			               	  } 
-			                  <div className="dropdown-cart-top-body border-top p-4">
-			                     <CartDropdownItem 
-			                     	icoIcon='ui-press'
-			                     	iconClass='text-success food-item'
-			                     	title='Corn & Peas Salad x 1'
-			                     	price='$209'
-			                     />
-
-			                     <CartDropdownItem 
-			                     	icoIcon='ui-press'
-			                     	iconClass='text-success food-item'
-			                     	title='Veg Seekh Sub 6" (15 cm) x 1'
-			                     	price='$133'
-			                     />
-
-			                     <CartDropdownItem 
-			                     	icoIcon='ui-press'
-			                     	iconClass='text-danger food-item'
-			                     	title='Chicken Tikka Sub 12" (30 cm) x 1'
-			                     	price='$314'
-			                     />
-
-			                     <CartDropdownItem 
-			                     	icoIcon='ui-press'
-			                     	iconClass='text-success food-item'
-			                     	title='Corn & Peas Salad x 1 '
-			                     	price='$209'
-			                     />
-			                  </div>
+			                  { !this.state.loadingData &&
+								  <div className="dropdown-cart-top-body border-top p-4">
+									{
+										this.state.cartItems.map((item,key)=>(
+											<CartDropdownItem 
+											    key={key}
+												icoIcon='ui-press'
+												iconClass='text-success food-item'
+												title={item.name}
+												qty={" X "+item.qty}
+												price={Config.CURRENCY+" "+item.special_price}/>
+											
+										))
+									}
+			                  </div>}
+							 { !this.state.loadingData &&
+							  <div>
 			                  <div className="dropdown-cart-top-footer border-top p-4">
-			                     <p className="mb-0 font-weight-bold text-secondary">Sub Total <span className="float-right text-dark">$499</span></p>
+			                     <p className="mb-0 font-weight-bold text-secondary">Grand Total <span className="float-right text-dark">{Config.CURRENCY+" "+this.state.cart.subtotal}</span></p>
 			                     <small className="text-info">Extra charges may apply</small>  
 			                  </div>
-			                  <div className="dropdown-cart-top-footer border-top p-2">
-			                     <NavDropdown.Item eventKey={5.1} as={Link} className="btn btn-success btn-block py-3 text-white text-center dropdown-item" to="/checkout"> Checkout</NavDropdown.Item>
+			                  <div className="d-flex">
+			                     <NavDropdown.Item eventKey={5.1} as={Link} className="btn btn-success  py-3 text-white text-center dropdown-item w-50 m-1" to="/Cart">Cart</NavDropdown.Item>
+								 <NavDropdown.Item eventKey={5.2} as={Link} className="btn btn-success  py-3 text-white text-center dropdown-item w-50 m-1" to="/checkout"> Checkout</NavDropdown.Item>
 			                  </div>
+							  </div>}
 			                </div>
 			            </NavDropdown>}
 			         </Nav>

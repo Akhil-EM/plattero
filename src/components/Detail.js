@@ -36,7 +36,7 @@ class Detail extends React.Component {
 	    };
 	}
 
-	componentWillMount(){
+	Mount(){
           this.getInitialData();
 	}
      
@@ -44,6 +44,7 @@ class Detail extends React.Component {
        CommonApi.restaurantDetail(this.restaurantID)
 	            .then((response)=>{
 					let resData=response.data.data;
+					console.log(resData)
 					this.setState({restaurantName:resData.restaurant_name,
 						           restaurantAddress:resData.address,
 								   restaurantRating:resData.res_rating,
@@ -85,7 +86,7 @@ class Detail extends React.Component {
 		CommonApi.products(1,_categoryId,this.restaurantID,100,"","menu_name",'desc')
 	            .then((response)=>{
 				  
-                  console.log(response.data.data)
+                //   console.log(response.data.data)
 				  this.setState({foodList:response.data.data.products,
 					             loaderDisplay:false});
 				}).catch((error)=>{
@@ -97,7 +98,6 @@ class Detail extends React.Component {
 
 
 	render() {
-		console.log(this.state.categoryList)
     	return (
 		<>
     	  <section className="restaurant-detailed-banner">

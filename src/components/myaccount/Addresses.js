@@ -1,6 +1,7 @@
 import React from 'react';
 import {Row,Col,Button,Spinner} from 'react-bootstrap';
 import AddAddressModal from '../modals/AddAddressModal';
+import EditAddressModal from '../modals/EditAddressModal';
 import DeleteAddressModal from '../modals/DeleteAddressModal';
 import AddressCard from '../common/AddressCard';
 import {ProfileApi} from '../../API/Profile.API'
@@ -13,7 +14,11 @@ class Addresses extends React.Component {
       	  showAddressModal: false,
 		  customerAddressList:[],
 		  addressLoading:true,
-		  deleteAddressId:null
+		  deleteAddressId:null,
+		  editAddressModal:false,
+		  firstName:'',
+		  lastName:'',
+		  addressId:0
 	    };
 	}
 
@@ -25,7 +30,7 @@ class Addresses extends React.Component {
 		this.setState({addressLoading:true})
         ProfileApi.getAddressList()
 		          .then((response)=>{
-					  console.log(response)
+					//   console.log(response)
 					  this.setState({customerAddressList:response.data.data.customeraddress,
 					                 addressLoading:false});
 				  }).catch((error)=>{
@@ -45,15 +50,26 @@ class Addresses extends React.Component {
 	showDeleteDialogue=(_deleteAddressId)=>{
 		this.setState({deleteAddressId:_deleteAddressId},
 			    ()=>{
-					this.setState({showDeleteModal: true },()=>{
-						console.log(this.state.deleteAddressId);
-					})
+					this.setState({showDeleteModal: true });
 				});
 		
 	}
     hideDeleteModal = () => this.setState({ showDeleteModal: false });
     hideAddressModal = () => this.setState({ showAddressModal: false });
-
+    hideEditAddressModal=()=> this.setState({editAddressModal:false});
+    showEditAddressModal=(_firstName,_lastName,_addressLine1,_addressLine2,
+		                  _city,_pincode,_state,_id)=>{
+		this.setState({firstName:_firstName,
+						lastName:_lastName,
+						addressLine1:_addressLine1,
+						addressLine2:_addressLine2,
+						city:_city,
+						pincode:_pincode,
+						state:_state,
+						addressId:_id,
+					    editAddressModal:true,
+					    });
+	}
 	render() {
     	return (
 	      <>
@@ -63,6 +79,17 @@ class Addresses extends React.Component {
 	        <DeleteAddressModal show={this.state.showDeleteModal} 
 			                    onHide={this.hideDeleteModal}
 								deleteAddress={this.deleteAddress}/>
+			<EditAddressModal show={this.state.editAddressModal}
+			                  onHide={this.hideEditAddressModal}
+							  fName={this.state.firstName}
+							  lName={this.state.lastName}
+							  addLine1={this.state.addressLine1}
+							  addLine2={this.state.addressLine2}
+							  city={this.state.city}
+							  pincode={this.state.pincode}
+							  state={this.state.state}
+							  addressId={this.state.addressId}
+							  renderParent={this.getInitialData}/>
 		    <div className='p-4 bg-white shadow-sm'>
               <Row>
                <Col md={12}>
@@ -92,7 +119,9 @@ class Addresses extends React.Component {
 						icoIcon= 'location-pin'
 						iconclassName= 'icofont-3x'
 						address={item.add_line1+' , '+item.add_line2+' , '+item.pincode+' , '+item.add_city+' , '+item.add_state+' , '+item.add_country}
-						onEditClick= {() => this.setState({ showAddressModal: true })}
+						onEditClick= {()=>this.showEditAddressModal(item.first_name,item.last_name,item.add_line1,
+							                                        item.add_line2,item.add_city,item.pincode,item.add_state,
+																	item.id)}
 						onDeleteClick={() => this.showDeleteDialogue(item.id)}
 					  />
 				   </Col>

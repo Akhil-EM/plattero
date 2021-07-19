@@ -1,10 +1,73 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
-import {Image,Badge} from 'react-bootstrap';
+import {Link,withRouter} from 'react-router-dom';
+import {Image,Badge,Spinner} from 'react-bootstrap';
 import PropTypes from 'prop-types'; 
 import Icofont from 'react-icofont';
-
+import { ProfileApi } from '../../API/Profile.API';
 class CardItem extends React.Component {
+	constructor(props) {
+		super(props)
+		this.state={
+			loaderDisplay:false,
+		    favIcoIconColor:this.props.favIcoIconColor,
+
+		}
+	}
+
+	static getDerivedStateFromProps(props, state) {
+        if(props.imageAlt !== state.name){
+            //Change in props
+            return{
+              
+            };
+        }
+        return null; // No change to state
+    }
+	
+	navigate=(_to)=>{
+		this.props.history.push(`/detail/${_to}`)
+	}
+
+	removeFavorite=()=>{
+		this.setState({loaderDisplay:true});
+         ProfileApi.removeFromFavoriteRestaurantList(this.props.id)
+		           .then((response)=>{
+					   this.setState({favIcoIconColor:'text-secondary',loaderDisplay:false})
+					   if(!this.props.fromList){
+						  this.props.renderParent();
+					    }
+				   }).catch((error)=>{
+					   this.setState({loaderDisplay:false})
+					   console.log(error);
+				   })
+	}
+
+	addToFavorite=()=>{
+		this.setState({loaderDisplay:true});
+		ProfileApi.addToFavoriteRestaurantList(this.props.id)
+		          .then((response)=>{
+					  this.setState({favIcoIconColor:'text-danger',loaderDisplay:false});
+					  if(!this.props.fromList){
+						 this.props.renderParent();
+					   }
+					  
+				  }).catch((error)=>{
+					this.setState({loaderDisplay:false});
+					  console.log(error)
+				  })
+	}
+
+	changeFavorite=()=>{
+		if(this.state.favIcoIconColor==='text-danger'){
+			//already in favorite list so remove it
+            this.removeFavorite();
+		}
+
+		if(this.state.favIcoIconColor==='text-secondary'){
+			//not  in favorite list so add
+            this.addToFavorite();
+		}
+	}
 	render() {
     	return (
     		<div className="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
@@ -18,25 +81,21 @@ class CardItem extends React.Component {
 	              	  )
 	              	  :""
 	              }
-                  <div className={`favourite-heart position-absolute ${this.props.favIcoIconColor}`}>
-                  	<Link to={this.props.linkUrl}>
-                  		<Icofont icon='heart'/>
-                  	</Link>
+                  <div className={`favourite-heart position-absolute ${this.state.favIcoIconColor}`}
+				       onClick={this.changeFavorite}>
+                  		{
+						    !this.state.loaderDisplay?
+							<Icofont icon='heart'/>:
+							<Spinner animation="grow" size="sm" variant="light"/>	
+						}
                   </div>
-                  {/* {this.props.showPromoted ? (
-	                  <div className="member-plan position-absolute">
-	                  	<Badge variant={this.props.promotedVariant}>Promoted</Badge>
-	                  </div>
-	                  )
-                  	  :""
-                  } */}
-                  <Link to={this.props.linkUrl}>
+                  <div onClick={()=>this.navigate(this.props.id)} style={{cursor:'pointer'}}>
                   	<Image src={this.props.image} className={this.props.imageClass} alt={this.props.imageAlt} />
-                  </Link>
+                  </div>
                </div>
                <div className="p-3 position-relative">
                   <div className="list-card-body">
-                     <h6 className="mb-1"><Link to={this.props.linkUrl} className="text-black">{this.props.title}</Link></h6>
+                     <h6 className="mb-1" style={{cursor:'pointer'}}><div onClick={()=>this.navigate(this.props.id)} >{this.props.title}</div></h6>
                      {this.props.subTitle ? (
 	                     <p className="text-gray mb-3">{this.props.subTitle}</p>
 	                     )
@@ -60,13 +119,6 @@ class CardItem extends React.Component {
 	                   	):''
 	                 }
                   </div>
-                  {/* {this.props.offerText ? (
-	                  <div className="list-card-badge">
-	                     <Badge variant={this.props.offerColor}>OFFER</Badge> <small>{this.props.offerText}</small>
-	                  </div>
-	                  )
-	                  :""
-	              } */}
                </div>
             </div>
 		);
@@ -87,7 +139,6 @@ CardItem.propTypes = {
   price: PropTypes.string,
   showPromoted: PropTypes.bool,
   promotedVariant: PropTypes.string,
-  favIcoIconColor: PropTypes.string,
   rating: PropTypes.string,
 };
 CardItem.defaultProps = {
@@ -104,4 +155,4 @@ CardItem.defaultProps = {
 	rating: '',
 }
 
-export default CardItem;
+export default withRouter(CardItem);

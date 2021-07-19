@@ -7,10 +7,13 @@ import CardItem from './common/CardItem';
 import CategoriesCarousel from './common/CategoriesCarousel';
 import Config from '../CONFIG'
 import  {CommonApi} from '../API/Common.API';
-import {HomeApi} from '../API/Home.API'
+import {HomeApi} from '../API/Home.API';
+import { ProfileApi } from '../API/Profile.API';
 import OwlCarousel from 'react-owl-carousel3';
 import ProductBox from './home/ProductBox';
 import BannerCard from './home/BannerCard';
+
+let favoriteRestaurantIdList=[];
 class List extends React.Component {
 	constructor(props) {
 		super(props)
@@ -19,6 +22,7 @@ class List extends React.Component {
 			 restaurantList:[],
 			 sliderBanner:[],
 			 offerBanners:[],
+			 favoriteList:[],
 			 loaderDisplay:'',
 			 bannerDisplay:false
 		}
@@ -28,19 +32,28 @@ class List extends React.Component {
 		this.getInitialData();
 	}
 
-	getInitialData(){
+	getInitialData=()=>{
 		this.setState({loaderDisplay:''});
-	
-		CommonApi.restaurants("",'','10.0260688','76.3124753')
-		         .then((response)=>{
-					 this.setState({restaurantList:response.data.data.restuarants,
-					                loaderDisplay:'none'})
-				 }).catch((error)=>{
-					 console.log(error)
-				 });
+	    ProfileApi.wishList()
+				  .then((response)=>{
+					  
+					  let resArray=response.data.data.items;
+					  if(resArray.length <=0){
+						  this.getRestaurants();
+					  }
+					  resArray.forEach(items=>{
+						  favoriteRestaurantIdList.push(parseInt(items.res_id));
+						  if(favoriteRestaurantIdList.length===resArray.length){
+							  this.getRestaurants();
+						   }
+					  })
+					  ;
+				  }).catch((error)=>{
+					console.log(error);
+					this.setState({loaderDisplay:false});
+				  })
 	    HomeApi.homepage(10.022407,76.304138)
 		       .then((response)=>{
-                   console.log(response.data.data.slider_banners);
 				   this.setState({sliderBanner:response.data.data.web_sliders,
 					              offerBanners:response.data.data.offer_banners,
 				                  bannerDisplay:true})
@@ -49,12 +62,24 @@ class List extends React.Component {
 			   })
 	}
 	
+	getRestaurants=()=>{
+		CommonApi.restaurants("",'','10.0260688','76.3124753')
+				.then((response)=>{
+				this.setState({restaurantList:response.data.data.restuarants,
+								loaderDisplay:'none'})
+			}).catch((error)=>{
+				console.log(error)
+			});
+	}
+	checkIsFavorite(_rest_id){
+		const found = favoriteRestaurantIdList.find(element => element ===_rest_id);
+        if(found===undefined) return false;
+		return true;
+	}
 	render() {
 		let restaurantList=this.state.restaurantList;
-		console.log(this.state.sliderBanner)
     	return (
     		<>  
-			   
 	    		<section className="section pt-2 pb-5 products-listing">
 			        <Container>
 					{this.state.bannerDisplay &&
@@ -101,8 +126,9 @@ class List extends React.Component {
 							  
 								{
 								  restaurantList.map((item,key)=>(
-									<Col md={4} sm={6} className="mb-4 pb-2" key={key}>
+									<Col md={3} sm={4} className="mb-4 pb-2" key={key}>
 										<CardItem 
+										    id={item.id}
 											title={item.restaurant_name}
 											subTitle={item.res_description}
 											imageAlt='Product'
@@ -114,9 +140,10 @@ class List extends React.Component {
 											price={Config.CURRENCY+" "+item.avg_price_person+" per person"}
 											showPromoted={true}
 											promotedVariant='dark'
-											favIcoIconColor='text-danger'
+											favIcoIconColor={this.checkIsFavorite(item.id)?'text-danger':'text-secondary'}
 											rating={item.res_rating}
-										/>
+											renderParent={this.getInitialData}
+											fromList={true}/>
 			                        </Col>
 								  ))
 								}
