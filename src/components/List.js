@@ -49,6 +49,7 @@ class List extends React.Component {
 					  })
 					  ;
 				  }).catch((error)=>{
+					this.getRestaurants();
 					console.log(error);
 					this.setState({loaderDisplay:false});
 				  })
@@ -63,12 +64,14 @@ class List extends React.Component {
 	}
 	
 	getRestaurants=()=>{
+		this.setState({loaderDisplay:''})
 		CommonApi.restaurants("",'','10.0260688','76.3124753')
 				.then((response)=>{
 				this.setState({restaurantList:response.data.data.restuarants,
 								loaderDisplay:'none'})
 			}).catch((error)=>{
-				console.log(error)
+				console.log(error);
+				this.setState({loaderDisplay:'none'})
 			});
 	}
 	checkIsFavorite(_rest_id){
