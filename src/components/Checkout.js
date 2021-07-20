@@ -102,7 +102,7 @@ class Checkout extends React.Component {
 				   }).catch((error)=>{
 					   console.log(error)
 					//    console.log(error.response.data);
-					//    this.props.addToast(error.response.data.message, { appearance: 'warning' });
+					 this.props.addToast(error.response.data.message, { appearance: 'warning' });
 				   })
 	}
 
