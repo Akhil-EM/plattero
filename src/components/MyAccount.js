@@ -43,7 +43,11 @@ class MyAccount extends React.Component {
   }
   hideEditProfile = () => this.setState({ showEditProfile: false });
   hideEditPassword=()=> this.setState({showEditPassword:false});
-
+  logoutUser=()=>{
+      localStorage.clear();
+      this.props.history.push('/');
+      window.location.reload();
+  }
 	render() {
     	return (
     		<>
@@ -98,7 +102,7 @@ class MyAccount extends React.Component {
                              <NavLink className="nav-link" activeClassName="active" exact to="/myaccount/orders"><i className="icofont-food-cart"></i> Orders</NavLink>
                           </li>
                           <li className="nav-item">
-                             <NavLink className="nav-link" activeClassName="active" exact to="/"><i className="icofont-logout"></i>Logout</NavLink>
+                             <NavLink className="nav-link" activeClassName="active" onClick={this.logoutUser} exact to=""><i className="icofont-logout"></i>Logout</NavLink>
                           </li>
                        </ul>
                     </div>

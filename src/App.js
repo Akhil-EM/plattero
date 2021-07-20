@@ -35,8 +35,9 @@ class App extends React.Component  {
   render() {
     return (
       <>
-      <Header/>
       <ToastProvider autoDismiss={true} autoDismissTimeout='2000'>
+      <Header/>
+      
           {/* {
             (this.props.location.pathname!=='/login' && this.props.location.pathname!=='/register') ? <Header/>:''
           } */}

@@ -20,11 +20,11 @@ class CartDropdownItem extends React.Component {
 }
 
 CartDropdownItem.propTypes = {
-  title: PropTypes.string.isRequired,
-  qty:PropTypes.string.isRequired,
-  price: PropTypes.string.isRequired,
-  icoIcon: PropTypes.string.isRequired,
-  iconclass: PropTypes.string.isRequired
+  title: PropTypes.string,
+  qty:PropTypes.string,
+  price: PropTypes.string,
+  icoIcon: PropTypes.string,
+  iconclass: PropTypes.string
 };
 
 CartDropdownItem.defaultProps = {

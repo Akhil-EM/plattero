@@ -10,6 +10,14 @@ import {MdLocationOn,MdSearch} from 'react-icons/md';
 import SetAddressModal from '../modals/SetAddressModal';
 import {withRouter} from 'react-router-dom';
 import { HeaderApi } from '../../API/Header.API';
+import { useToasts } from 'react-toast-notifications'
+
+function withToast(Component) {
+  return function WrappedComponent(props) {
+    const toastFuncs = useToasts()
+    return <Component {...props} {...toastFuncs} />;
+  }
+}
 
 class Header extends React.Component {
 	constructor(props) {
@@ -81,6 +89,14 @@ class Header extends React.Component {
 		localStorage.clear();
 		this.props.history.push('/')
 		window.location.reload();
+	}
+	navigateToCart=()=>{
+        if((this.state.cartItems).length <=0){
+			this.props.addToast("No items found in your cart..!", { appearance: 'warning' }); 
+		}else{
+			this.props.history.push('/checkout')
+		}
+		
 	}
 	render() {
     	return (
@@ -154,7 +170,7 @@ class Header extends React.Component {
 			            			title='Cart'
 			            			badgeClass='ml-1'
 			            			badgeVariant='success'
-			            			badgeValue={5}
+			            			badgeValue={this.state.cartItems.length}
 			            		/>
 			            	}>
                          
@@ -199,8 +215,8 @@ class Header extends React.Component {
 			                     <small className="text-info">Extra charges may apply</small>  
 			                  </div>
 			                  <div className="d-flex">
-			                     <NavDropdown.Item eventKey={5.1} as={Link} className="btn btn-success  py-3 text-white text-center dropdown-item w-50 m-1" to="/Cart">Cart</NavDropdown.Item>
-								 <NavDropdown.Item eventKey={5.2} as={Link} className="btn btn-success  py-3 text-white text-center dropdown-item w-50 m-1" to="/checkout"> Checkout</NavDropdown.Item>
+			                     <NavDropdown.Item eventKey={5.1} as={Link} className="btn btn-success  py-3 text-white text-center dropdown-item  m-1" to="#" onClick={this.navigateToCart}>Cart</NavDropdown.Item>
+								 {/* <NavDropdown.Item eventKey={5.2} as={Link} className="btn btn-success  py-3 text-white text-center dropdown-item w-50 m-1" to="/checkout"> Checkout</NavDropdown.Item> */}
 			                  </div>
 							  </div>}
 			                </div>
@@ -214,4 +230,4 @@ class Header extends React.Component {
 	}
 }
 
-export default withRouter(Header);
+export default withRouter(withToast(Header));

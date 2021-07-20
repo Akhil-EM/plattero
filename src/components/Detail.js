@@ -1,22 +1,16 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {Row,Col,Container,Form,InputGroup,Button,Tab,Nav,Image,Badge,Spinner} from 'react-bootstrap';
-import ItemsCarousel from './common/ItemsCarousel';
-import GalleryCarousel from './common/GalleryCarousel';
-import CheckoutItem from './common/CheckoutItem';
+import {Row,Col,Container,Button,Tab,Nav,Image,Badge,Spinner} from 'react-bootstrap';
 import BestSeller from './common/BestSeller';
-import QuickBite from './common/QuickBite';
-import StarRating from './common/StarRating';
-import RatingBar from './common/RatingBar';
-import Review from './common/Review';
 import Icofont from 'react-icofont';
-
-
 import { CommonApi } from '../API/Common.API';
+import {HeaderApi} from '../API/Header.API';
 import Config from '../CONFIG';
+
+
 class Detail extends React.Component {
-	constructor(props, context) {
-	    super(props, context);
+	constructor(props) {
+	    super(props);
         this.restaurantID=this.props.match.params.id;
 	    this.state = {
       	  showAddressModal: false,
@@ -32,19 +26,20 @@ class Detail extends React.Component {
 		  categoryList:[],
 		  foodList:[],
 		  loaderDisplay:true,
-		  selectedNavItem:0
+		  selectedNavItem:0,
 	    };
+		this.cartIdList=[];
 	}
 
-	Mount(){
+	componentDidMount(){
           this.getInitialData();
 	}
      
 	getInitialData(){
+	   this.getCartData();
        CommonApi.restaurantDetail(this.restaurantID)
 	            .then((response)=>{
 					let resData=response.data.data;
-					console.log(resData)
 					this.setState({restaurantName:resData.restaurant_name,
 						           restaurantAddress:resData.address,
 								   restaurantRating:resData.res_rating,
@@ -58,15 +53,46 @@ class Detail extends React.Component {
 					console.log(error)
 				})
 
-	   CommonApi.categories(this.restaurantID)
-	            .then((response)=>{
-                //   console.log(response.data.data)
-				  this.setState({categoryList:response.data.data})
+		CommonApi.categories(this.restaurantID)
+				.then((response)=>{
+				this.setState({categoryList:response.data.data})
 				}).catch((error)=>{
 					console.log(error)
 				});
-	    this.getFoodList('',0);
+
+	  
 	}
+    
+	getCartData=()=>{
+	 console.log('cart info')
+	  HeaderApi.getCartData()
+		.then((response)=>{
+			let resArray=response.data.data.cartitems;
+			if(resArray.length <=0){
+				this.getFoodList('',0);
+			}
+			//get cart  product id and quantity
+			resArray.forEach(item=>{
+				this.cartIdList.push({id:parseInt(item.id),qty:parseInt(item.qty)});
+				if(this.cartIdList.length===resArray.length){
+				  return this.getFoodList('',0);
+				}
+			});
+		}).catch((error)=>{
+			this.getFoodList('',0);
+			this.setState({loaderDisplay:false});
+		});
+	}
+	checkProductInCart(_productId){
+		let count=0;
+		for(let i=0;i<this.cartIdList.length;i++){
+			if(this.cartIdList[i].id===_productId) count=this.cartIdList[i].qty;
+		}
+		return count;
+	
+  	}
+    
+
 
     hideAddressModal = () => this.setState({ showAddressModal: false });
     getQty = ({id,quantity}) => {
@@ -77,16 +103,11 @@ class Detail extends React.Component {
     	console.log(value);
     	//console.log(quantity);
 	}
-    
-
-
-	getFoodList=(_categoryId,_navItemId)=>{
+	getFoodList(_categoryId,_navItemId){
 		this.setState({loaderDisplay:true,
 			           selectedNavItem:_navItemId})
 		CommonApi.products(1,_categoryId,this.restaurantID,100,"","menu_name",'desc')
 	            .then((response)=>{
-				  
-                //   console.log(response.data.data)
 				  this.setState({foodList:response.data.data.products,
 					             loaderDisplay:false});
 				}).catch((error)=>{
@@ -98,6 +119,8 @@ class Detail extends React.Component {
 
 
 	render() {
+
+		console.log(this.state.foodList)
     	return (
 		<>
     	  <section className="restaurant-detailed-banner">
@@ -183,9 +206,8 @@ class Detail extends React.Component {
 						this.state.foodList.map((item,key)=>(
 							   <Col md={4} sm={6} className="mb-4 " key={key}>
 									<BestSeller 
-										id={1}
+										id={item.id}
 										title={item.name}
-										// subTitle='North Indian • American • Pure veg'
 										imageAlt={item.url_key}
 										image={item.image}
 										imageClass='img-fluid custom-image'
@@ -198,6 +220,8 @@ class Detail extends React.Component {
 										favIcoIconColor='text-danger'
 										rating='3.1 (300+)'
 										getValue={this.getQty}
+										renderParent={this.getCartData}
+										qty={this.checkProductInCart(item.id)}
 									/>
 							    </Col>
 								))

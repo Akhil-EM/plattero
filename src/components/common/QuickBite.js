@@ -23,11 +23,14 @@ class QuickBite extends React.Component {
   }
 
   IncrementItem = () => {
-    CheckoutApi.updateCartQuantity(this.props.id,this.state.quantity)
+    CheckoutApi.updateCartQuantity(this.props.id,this.state.quantity+1)
                .then(()=>{
                  this.setState((prevState,props)=>({
                      quantity:prevState.quantity +1
-                  }))
+                  }),()=>{
+                    this.props.renderParent();
+                  })
+                  
                }).catch((error)=>{
                  console.log(error)
                });
@@ -37,21 +40,33 @@ class QuickBite extends React.Component {
 			this.props.addToast("Item quantity can not be less than 1", { appearance: 'error' });
        
     }else {
-      CheckoutApi.updateCartQuantity(this.props.id,this.state.quantity)
+      CheckoutApi.updateCartQuantity(this.props.id,this.state.quantity-1)
                 .then(()=>{
                   this.setState((prevState,props)=>({
                       quantity:prevState.quantity -1
                   }))
+                  this.props.renderParent();
                 }).catch((error)=>{
                   console.log(error)
                 });
     }
   }
-
+  
+  deleteCartItem=()=>{
+    CheckoutApi.deleteCartItem(this.props.id)
+                .then(()=>{
+                  this.props.addToast("Item removed from cart..!", { appearance: 'success' });
+                  this.props.renderParent();
+                }).catch((error)=>{
+                  console.log(error)
+  });
+  }
   render() {
-     console.log(this.props.id)
       return (
       	<div className={"p-3 border-bottom "+this.props.itemClass}>
+          <div className='delete-icon' onClick={this.deleteCartItem}>
+             <Icofont icon='close' size="2"/>
+          </div>
 		   {this.state.quantity===0?
 	            <span className="float-right"> 
 	              <Button variant='outline-secondary' onClick={this.IncrementItem} size="sm">ADD</Button>
@@ -77,6 +92,7 @@ class QuickBite extends React.Component {
                <p className="text-gray mb-0">{this.props.priceUnit}{this.props.price} /item.</p>
 
              }
+             
 		      </Media.Body>
 		   </Media>
 		</div>

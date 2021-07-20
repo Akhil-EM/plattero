@@ -1,64 +1,90 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {Link,withRouter} from 'react-router-dom';
 import {Image,Badge,Button} from 'react-bootstrap';
 import PropTypes from 'prop-types'; 
 import Icofont from 'react-icofont';
+import {CheckoutApi} from '../../API/Checkout.API';
+import { useToasts } from 'react-toast-notifications'
+import ChangeCartDataModel from '../modals/ChangeCartDataModel';
+
+
+function withToast(Component) {
+  return function WrappedComponent(props) {
+    const toastFuncs = useToasts()
+    return <Component {...props} {...toastFuncs} />;
+  }
+}
 
 class BestSeller extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      quantity: this.props.qty || 0,
+      quantity:parseInt(this.props.qty) || 0,
       show: this.props.show || true,
       max:this.props.maxValue || 5,
-      min:this.props.minValue || 0
+      min:this.props.minValue || 0,
+      showAlert:false,
+      alertMessage:''
     };
   }
 
   IncrementItem = () => {
-    if(this.state.quantity >= this.state.max) {
-
-    }else {
-        this.setState({
-            quantity: this.state.quantity + 1
-        });
-      this.props.getValue({id:this.props.id,quantity: (this.state.quantity + 1 )});
-    }
+    CheckoutApi.updateCartQuantity(this.props.id,this.state.quantity)
+               .then(()=>{
+                 this.setState((prevState,props)=>({
+                     quantity:prevState.quantity +1
+                  }))
+               }).catch((error)=>{
+                 console.log(error)
+               });
   }
   DecreaseItem = () => {
-    if(this.state.quantity <= (this.state.min)) {
-
+    if(this.state.quantity === 1) {
+			this.props.addToast("Item quantity can not be less than 1", { appearance: 'error' });
+       
     }else {
-      this.setState({ quantity: this.state.quantity - 1 });
-      this.props.getValue({id:this.props.id,quantity: (this.state.quantity - 1 )});
+      CheckoutApi.updateCartQuantity(this.props.id,this.state.quantity)
+                .then(()=>{
+                  this.setState((prevState,props)=>({
+                      quantity:prevState.quantity -1
+                  }))
+                }).catch((error)=>{
+                  console.log(error)
+                });
     }
   }
+
+  addToCart=()=>{
+    CheckoutApi.addToCart(this.props.id)
+               .then((response)=>{
+                  console.log(response)
+                  this.setState({quantity:1})
+                  this.props.addToast("Item added to cart..!", { appearance: 'success' });
+               }).catch((error)=>{
+                 console.log(error.response.data.message)
+                 this.setState({alertMessage:error.response.data.message,showAlert:true})
+               });
+  }
+
+  clearCartAndAddNewProducts=()=>{
+       CheckoutApi.clearCartAndAddNewProducts(this.props.id)
+                  .then(()=>{
+                    window.location.reload();
+                    this.props.addToast("Item added to cart..!", { appearance: 'success' });
+                  }).catch((error)=>{
+                    console.log('error');
+                  }) 
+  }
+  hideAlert=()=>this.setState({showAlert:false});
 
   render() {
       return (
         <div className="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
+            <ChangeCartDataModel show={this.state.showAlert}
+                                 onHide={this.hideAlert}
+                                 message={this.state.alertMessage}
+                                 clearCart={this.clearCartAndAddNewProducts}/>
                <div className="list-card-image">
-                   {/* {this.props.rating ? (
-                    <div className="star position-absolute">
-                      <Badge variant="success">
-                        <Icofont icon='star'/> {this.props.rating}
-                      </Badge>
-                    </div>
-                    )
-                    :""
-                } */}
-                  {/* <div className={`favourite-heart position-absolute ${this.props.favIcoIconColor}`}>
-                    <Link to="#">
-                      <Icofont icon='heart'/>
-                    </Link>
-                  </div> */}
-                  {/* {this.props.showPromoted ? (
-                    <div className="member-plan position-absolute">
-                      <Badge variant={this.props.promotedVariant}>Promoted</Badge>
-                    </div>
-                    )
-                      :""
-                  } */}
                   <Link to="#">
                     <Image src={this.props.image} className={this.props.imageClass} alt={this.props.imageAlt} />
                   </Link>
@@ -93,13 +119,11 @@ class BestSeller extends React.Component {
                            
                          {this.state.quantity===0?
                             <span className="float-right"> 
-                              <Button variant='outline-secondary' onClick={this.IncrementItem} size="sm">ADD</Button>
+                              <Button variant='outline-secondary' onClick={this.addToCart} size="sm">ADD</Button>
                             </span>
                             :
                             <span className="count-number float-right">
-                               <Button variant="outline-secondary" onClick={this.DecreaseItem} className="btn-sm left dec"> <Icofont icon="minus" /> </Button>
-                               <input className="count-number-input" type="text" value={this.state.quantity} readOnly/>
-                               <Button variant="outline-secondary" onClick={this.IncrementItem} className="btn-sm right inc"> <Icofont icon="icofont-plus" /> </Button>
+                               <Button variant="outline-secondary" onClick={()=>this.props.history.push('/checkout')} className="btn-sm left dec"><Icofont icon="cart" />View in cart</Button>
                             </span>
                          }
                        </p>
@@ -145,4 +169,4 @@ BestSeller.defaultProps = {
   rating: ''
 }
 
-export default BestSeller;
+export default withRouter(withToast(BestSeller));

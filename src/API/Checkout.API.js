@@ -12,8 +12,48 @@ const CheckoutApi={
                 qty:_count,
                 request_from: "web"
             },
-            {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+        {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+    },
+    deleteCartItem:(_cartIemID)=>{
+        return http.delete(`${Config.APPLICATION_URL_SECOND}carts/mine/items/${_cartIemID}`,
+        {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+    },
+    checkoutCart:(_addressId)=>{
+        return http.get(`${Config.APPLICATION_BASE_URL}/checkout/mine`,{
+            params:{address_id:_addressId},
+            headers:{Authorization:`Bearer ${Config.API_TOKEN}`}
+        })
+    },
+    addToCart:(_menu_id)=>{
+        return http.post(Config.APPLICATION_URL_SECOND+'carts/mine/items',
+        {menu_id:_menu_id,
+         qty:1,
+         request_from: "web"},
+        {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+    },
+    clearCartAndAddNewProducts:(_menu_id)=>{
+        return http.post(Config.APPLICATION_URL_SECOND+'carts/mine/clear/items',
+        {menu_id:_menu_id,
+         qty:1,
+         request_from: "web"},
+        {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+    },
+    couponList:()=>{
+        return http.get(`${Config.APPLICATION_URL_SECOND}carts/mine/coupons`,{
+            headers:{Authorization:`Bearer ${Config.API_TOKEN}`}
+        })
+    },
+    applyCoupon:(_offer)=>{
+        return http.post(Config.APPLICATION_URL_SECOND+'carts/mine/coupons',
+        {coupon:_offer},
+        {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+    },
+    removeCoupon:()=>{
+        return http.delete(Config.APPLICATION_URL_SECOND+'carts/mine/coupons',
+        {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
+
     }
+
    
 }
 

@@ -18,8 +18,7 @@ class ChooseAddressCard extends React.Component {
                      </p>
                      <p className="mb-0 text-black font-weight-bold">
                      	{this.props.type==="hasAddress"?
-	                        (<><Link className="btn btn-sm btn-success mr-2" to="#" onClick={this.props.onDeliverHereClick}> DELIVER HERE </Link>
-	                        <span>30MIN</span></>)
+	                        (<Link className="btn btn-sm btn-success mr-2" to="#" onClick={()=>this.props.onDeliverHereClick(this.props.delId)}> DELIVER HERE </Link>)
 	                        :<Link className="btn btn-sm btn-primary mr-2" to="#" onClick={this.props.onAddNewClick}> ADD NEW ADDRESS </Link>
                      	}
                      </p>

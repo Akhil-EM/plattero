@@ -1,14 +1,22 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {Row,Col,Container,Form,InputGroup,Button,Tab,Nav,ButtonToolbar,ToggleButton,ToggleButtonGroup,Image,OverlayTrigger,Tooltip} from 'react-bootstrap';
-import ItemsCarousel from './common/ItemsCarousel';
+import {Row,Col,Container,Form,InputGroup,Button,Spinner,Image} from 'react-bootstrap';
 import ChooseAddressCard from './common/ChooseAddressCard';
-import CheckoutItem from './common/CheckoutItem';
 import AddAddressModal from './modals/AddAddressModal';
 import Icofont from 'react-icofont';
 import {CheckoutApi} from "../API/Checkout.API.js";
+import {ProfileApi} from '../API/Profile.API'
 import QuickBite from './common/QuickBite';
 import Config from '../CONFIG';
+import CouponModal from './modals/CouponModal';
+import { useToasts } from 'react-toast-notifications'
+
+function withToast(Component) {
+  return function WrappedComponent(props) {
+    const toastFuncs = useToasts()
+    return <Component {...props} {...toastFuncs} />;
+  }
+}
 
 class Checkout extends React.Component {
 	constructor(props, context) {
@@ -17,13 +25,20 @@ class Checkout extends React.Component {
 	    this.state = {
       	  showAddressModal: false,
 			cartItems:[],
+			customerAddressList:[],
 			restaurantName:'',
 			restaurantAddress:'',
 			restaurantCity:'',
 			restaurantImage:'',
 			discount:0,
 			grandTotal:0,
-			subTotal:0
+			subTotal:0,
+			deliveryAddressId:null,
+			paymentMethods:[],
+			serviceableStatus:false,
+			showCouponModal:false,
+			selectedCoupon:'',
+			couponApplied:false
 	    };
 	}
     
@@ -31,7 +46,7 @@ class Checkout extends React.Component {
 	    this.getInitialData();      
 	}
 
-	getInitialData(){
+	getInitialData=()=>{
         CheckoutApi.getCartData()
 		           .then((response)=>{
 					   this.setState({restaurantName:response.data.data.cart.restaurant.name,
@@ -45,19 +60,72 @@ class Checkout extends React.Component {
 				   })
 				   .catch((error)=>{
 					   console.log(error)
-				   })
+				   });
+
+		ProfileApi.getAddressList()
+		          .then((response)=>{
+					  this.setState({customerAddressList:response.data.data.customeraddress})
+				  }).catch((error)=>{
+					  console.log(error)
+				  })
+		
+		
 	}
 	
 	
     hideAddressModal = () => this.setState({ showAddressModal: false });
-    getQty = ({id,quantity}) => {
-    	//console.log(id);
-    	//console.log(quantity);
+	hideCouponModal = () => this.setState({showCouponModal: false });
+    setDeliveryAddress=(_deliveryAddressID)=>this.setState({deliveryAddressId:_deliveryAddressID},()=>{
+		CheckoutApi.checkoutCart(this.state.deliveryAddressId)
+		           .then((response)=>{
+					   console.log(response.data.data.payment_methods);
+					   this.setState({paymentMethods:response.data.data.payment_methods,serviceableStatus:true});
+					   this.props.addToast("This address selected for delivery.", { appearance: 'info' });
+				   }).catch((error)=>{
+					   console.log(error.response.data)
+					   this.props.addToast(error.response.data.message, { appearance: 'warning' });
+				   })
+		
+	});
+
+	selectCoupon=(_coupon)=>{
+        this.setState({selectedCoupon:_coupon,showCouponModal:false})
+	}
+
+	applyCoupon=()=>{
+		CheckoutApi.applyCoupon(this.state.selectedCoupon)
+		           .then((response)=>{
+					   console.log(response)
+					   this.setState({couponApplied:true});
+					 this.props.addToast(response.data.message, { appearance: 'success' });
+					 this.getInitialData();
+				   }).catch((error)=>{
+					   console.log(error)
+					//    console.log(error.response.data);
+					//    this.props.addToast(error.response.data.message, { appearance: 'warning' });
+				   })
+	}
+
+	removeCoupon=()=>{
+		CheckoutApi.removeCoupon(this.state.selectedCoupon)
+		           .then((response)=>{
+					   this.setState({couponApplied:false});
+					 this.props.addToast(response.data.message, { appearance: 'success' });
+					 this.getInitialData();
+				   }).catch((error)=>{
+					   console.log(error.response.data);
+					   this.props.addToast(error.response.data.message, { appearance: 'warning' });
+				   })
 	}
 
 	render() {
     	return (
     		<section className="offer-dedicated-body mt-4 mb-4 pt-2 pb-2">
+			 <AddAddressModal show={this.state.showAddressModal} onHide={this.hideAddressModal}
+			                 renderParent={this.getInitialData}/>
+			 <CouponModal show={this.state.showCouponModal} 
+			              onHide={this.hideCouponModal}
+						  selectCoupon={this.selectCoupon}/>
 	         <Container>
 	            <Row>
 				<Col md={4}>
@@ -70,15 +138,6 @@ class Checkout extends React.Component {
                            </h4>
                            <h6 className="mb-0 text-white"><Icofont icon="location-pin" />{this.state.restaurantAddress+" "+this.state.restaurantCity}</h6>
                         </div>
-                     </div>
-              		 <div className="mb-2 bg-white rounded p-2 clearfix">
-                        <InputGroup className="input-group-sm mb-2">
-                           <Form.Control type="text" placeholder="Enter promo code" />
-                           <InputGroup.Append>
-                              <Button variant="primary" type="button" id="button-addon2"><Icofont icon="sale-discount" /> APPLY</Button>
-                           </InputGroup.Append>
-                        </InputGroup>
-                        
                      </div>
                      <div className="mb-2 bg-white rounded p-2 clearfix">
                         <p className="mb-1">Sub Total <span className="float-right text-dark">{Config.CURRENCY+" "+this.state.subTotal}</span></p>
@@ -100,6 +159,10 @@ class Checkout extends React.Component {
 	   				  <div className="text-center pt-2">
 	   				  	<Image fluid src="https://dummyimage.com/352x504/ccc/ffffff.png&text=Google+ads" />
 	   				  </div>
+					  <div className="pt-2"></div>
+	   				  <div className="text-center pt-2">
+	   				  	<Image fluid src="https://dummyimage.com/352x504/ccc/ffffff.png&text=Google+ads" />
+	   				  </div>
 	               </Col>
 				   <Col md={8}>
 				   <Row>
@@ -117,248 +180,101 @@ class Checkout extends React.Component {
 										specialPrice={item.special_price}
 										priceUnit={Config.CURRENCY}
 										qty={item.qty}
-									/>
+										renderParent={this.getInitialData}/>
 								</div>
 							))
 						}
 			        </Col>
 			        </Row>
-				   </Col>
-	               {/* <Col md={8}>
-	                  <div className="offer-dedicated-body-left">
-						 <div className="bg-white rounded shadow-sm p-4 mb-4">
+					{  this.state.cartItems.length >0 &&
+						<div className="bg-white rounded shadow-sm p-4 mb-4 mt-4">
 	                        <h4 className="mb-1">Choose a delivery address</h4>
-	                        <h6 className="mb-3 text-black-50">Multiple addresses in this location</h6>
-	                        <Row>
-	                           <Col md={6}>
-				               	  <ChooseAddressCard 
-				               	  	  boxclassName="border border-success"
-									  title= 'Work'
-									  icoIcon= 'briefcase'
-									  iconclassName= 'icofont-3x'
-									  address= 'NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India'
-				               	  />
-	                           </Col>
-	                           <Col md={6}>
-				               	  <ChooseAddressCard 
-									  title= 'Work'
-									  icoIcon= 'briefcase'
-									  iconclassName= 'icofont-3x'
-									  address= 'NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India'
-				               	  />
-	                           </Col>
-	                           <Col md={6}>
-				               	  <ChooseAddressCard 
-									  title= 'Work'
-									  icoIcon= 'briefcase'
-									  iconclassName= 'icofont-3x'
-									  address= 'NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India'
-				               	  />
-	                           </Col>
-	                           <Col md={6}>
-				               	  <ChooseAddressCard 
-									  title= 'Work'
-									  icoIcon= 'briefcase'
-									  iconclassName= 'icofont-3x'
-									  type="newAddress"
-									  address= 'NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India'
-									  onAddNewClick={() => this.setState({ showAddressModal: true })}
-				               	  />
-	                           </Col>
-	                        </Row>
-	                     </div>
-						 <div className="pt-2"></div>
-	                     <div className="bg-white rounded shadow-sm p-4 osahan-payment">
-	                        <h4 className="mb-1">Choose payment method</h4>
-	                        <h6 className="mb-3 text-black-50">Credit/Debit Cards</h6>
-	                        <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-	                          <Row>
-	                            <Col sm={4} className="pr-0">
-	                              <Nav variant="pills" className="flex-column">
-	                                  <Nav.Link eventKey="first"><Icofont icon="credit-card" /> Credit/Debit Cards</Nav.Link>
-	                                  <Nav.Link eventKey="second"><Icofont icon="id-card" /> Food Cards</Nav.Link>
-	                                  <Nav.Link eventKey="third"><Icofont icon="card" /> Credit</Nav.Link>
-	                                  <Nav.Link eventKey="fourth"><Icofont icon="bank-alt" /> Netbanking</Nav.Link>
-	                                  <Nav.Link eventKey="fifth"><Icofont icon="money" /> Pay on Delivery</Nav.Link>
-	                              </Nav>
-	                            </Col>
-	                            <Col sm={8} className="pl-0">
-	                              <Tab.Content className='h-100'>
-	                                <Tab.Pane eventKey="first">
-	                                  <h6 className="mb-3 mt-0 mb-3">Add new card</h6>
-	                                    <p>WE ACCEPT <span className="osahan-card">
-	                                       <Icofont icon="visa-alt" /> <Icofont icon="mastercard-alt" /> <Icofont icon="american-express-alt" /> <Icofont icon="payoneer-alt" /> <Icofont icon="apple-pay-alt" /> <Icofont icon="bank-transfer-alt" /> <Icofont icon="discover-alt" /> <Icofont icon="jcb-alt" />
-	                                       </span>
-	                                    </p>
-	                                    <Form>
-	                                       <div className="form-row">
-	                                          <Form.Group className="col-md-12">
-	                                             <Form.Label>Card number</Form.Label>
-	                                             <InputGroup>
-	                                                <Form.Control type="number" placeholder="Card number" />
-	                                                <InputGroup.Append>
-	                                                   <Button variant="outline-secondary" type="button" id="button-addon2"><Icofont icon="card" /></Button>
-	                                                </InputGroup.Append>
-	                                             </InputGroup>
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-8">
-	                                             <Form.Label>Valid through(MM/YY)
-	                                             </Form.Label>
-	                                             <Form.Control type="number" placeholder="Enter Valid through(MM/YY)" />
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-4">
-	                                             <Form.Label>CVV
-	                                             </Form.Label>
-	                                             <Form.Control type="number" placeholder="Enter CVV Number" />
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-12">
-	                                             <Form.Label>Name on card
-	                                             </Form.Label>
-	                                             <Form.Control type="text" placeholder="Enter Card number" />
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-12">
-	                                          	<Form.Check 
-											        custom
-											        type="checkbox"
-											        id="custom-checkbox1"
-											        label="Securely save this card for a faster checkout next time."
-											      />
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-12 mb-0">
-	                                             <Link to="/thanks" className="btn btn-success btn-block btn-lg">PAY $1329
-	                                             	<Icofont icon="long-arrow-right" />
-	                                             </Link>
-	                                          </Form.Group>
-	                                       </div>
-	                                    </Form>
-	                                </Tab.Pane>
-	                                <Tab.Pane eventKey="second">
-	                                    <h6 className="mb-3 mt-0 mb-3">Add new food card</h6>
-	                                    <p>WE ACCEPT  <span className="osahan-card">
-	                                       <i className="icofont-sage-alt"></i> <i className="icofont-stripe-alt"></i> <i className="icofont-google-wallet-alt-1"></i>
-	                                       </span>
-	                                    </p>
-	                                    <Form>
-	                                       <div className="form-row">
-	                                          <Form.Group className="col-md-12">
-	                                             <Form.Label>Card number</Form.Label>
-	                                             <InputGroup>
-	                                                <Form.Control type="number" placeholder="Card number" />
-	                                                <InputGroup.Append>
-	                                                   <Button variant="outline-secondary" type="button" id="button-addon2"><Icofont icon="card" /></Button>
-	                                                </InputGroup.Append>
-	                                             </InputGroup>
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-8">
-	                                             <Form.Label>Valid through(MM/YY)
-	                                             </Form.Label>
-	                                             <Form.Control type="number" placeholder="Enter Valid through(MM/YY)" />
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-4">
-	                                             <Form.Label>CVV
-	                                             </Form.Label>
-	                                             <Form.Control type="number" placeholder="Enter CVV Number" />
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-12">
-	                                             <Form.Label>Name on card
-	                                             </Form.Label>
-	                                             <Form.Control type="text" placeholder="Enter Card number" />
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-12">
-	                                          	<Form.Check 
-											        custom
-											        type="checkbox"
-											        id="custom-checkbox"
-											        label="Securely save this card for a faster checkout next time."
-											      />
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-12 mb-0">
-	                                             <Link to="/thanks" className="btn btn-success btn-block btn-lg">PAY $1329
-	                                             	<Icofont icon="long-arrow-right" />
-	                                             </Link>
-	                                          </Form.Group>
-	                                       </div>
-	                                    </Form>
-	                                </Tab.Pane>
-	                                <Tab.Pane eventKey="third">
-	                                    <div className="border shadow-sm-sm p-4 d-flex align-items-center bg-white mb-3">
-	                                       <Icofont icon="apple-pay-alt" className="mr-3 icofont-3x" />
-	                                       <div className="d-flex flex-column">
-	                                          <h5 className="card-title">Apple Pay</h5>
-	                                          <p className="card-text">Apple Pay lets you order now & pay later at no extra cost.</p>
-	                                          <Link to="#" className="card-link font-weight-bold">LINK ACCOUNT <Icofont icon="link-alt" /></Link>
-	                                       </div>
-	                                    </div>
-	                                    <div className="border shadow-sm-sm p-4 d-flex bg-white align-items-center mb-3">
-	                                       <Icofont icon="paypal-alt" className="mr-3 icofont-3x" />
-	                                       <div className="d-flex flex-column">
-	                                          <h5 className="card-title">Paypal</h5>
-	                                          <p className="card-text">Paypal lets you order now & pay later at no extra cost.</p>
-	                                          <Link to="#" className="card-link font-weight-bold">LINK ACCOUNT <Icofont icon="link-alt" /></Link>
-	                                       </div>
-	                                    </div>
-	                                    <div className="border shadow-sm-sm p-4 d-flex bg-white align-items-center">
-	                                       <Icofont icon="diners-club" className="mr-3 icofont-3x" />
-	                                       <div className="d-flex flex-column">
-	                                          <h5 className="card-title">Diners Club</h5>
-	                                          <p className="card-text">Diners Club lets you order now & pay later at no extra cost.</p>
-	                                          <Link to="#" className="card-link font-weight-bold">LINK ACCOUNT <Icofont icon="link-alt" /></Link>
-	                                       </div>
-	                                    </div>
-	                                </Tab.Pane>
-	                                <Tab.Pane eventKey="fourth">
-	                                    <h6 className="mb-3 mt-0 mb-3">Netbanking</h6>
-	                                    <Form>
-		                                    <ButtonToolbar>
-						                        <ToggleButtonGroup className="d-flex w-100" type="checkbox" name="options" defaultValue={1}>
-				    							    <ToggleButton variant='info' value={1}>
-				    							      HDFC <Icofont icon="check-circled" />
-				    							    </ToggleButton>
-				    							    <ToggleButton variant='info' value={2}>
-				    							      ICICI <Icofont icon="check-circled" />
-				    							    </ToggleButton>
-				    							    <ToggleButton variant='info' value={3}>
-				    							      AXIS <Icofont icon="check-circled" />
-				    							    </ToggleButton>
-				        					    </ToggleButtonGroup>
-				    						</ButtonToolbar>
-	                                        <hr />
-	                                        <div className="form-row">
-	                                          <Form.Group className="col-md-12">
-	                                             <Form.Label>Select Bank
-	                                             </Form.Label>
-	                                             <br />
-	                                             <Form.Control as="select" className="custom-select">
-											      <option>Bank</option>
-											      <option>One</option>
-											      <option>Two</option>
-											      <option>Three</option>
-											     </Form.Control>
-	                                          </Form.Group>
-	                                          <Form.Group className="col-md-12 mb-0">
-	                                             <Link to="/thanks" className="btn btn-success btn-block btn-lg">PAY $1329
-	                                             <Icofont icon="long-arrow-right" /></Link>
-	                                          </Form.Group>
-	                                        </div>
-	                                    </Form>
-	                                </Tab.Pane>
-	                                <Tab.Pane eventKey="fifth">
-	                                    <h6 className="mb-3 mt-0 mb-3">Cash</h6>
-	                                    <p>Please keep exact change handy to help us serve you better</p>
-	                                    <hr />
-	                                    <Form>
-	                                       <Link to="/thanks" className="btn btn-success btn-block btn-lg">PAY $1329
-	                                       <Icofont icon="long-arrow-right" /></Link>
-	                                    </Form>
-	                                </Tab.Pane>
-	                              </Tab.Content>
-	                            </Col>
-	                          </Row>
-	                        </Tab.Container>
-	                      </div>
-	                  </div>
-	               </Col> */}
-	               
+							{this.state.customerAddressList.length <=0 &&
+								<Col md={12} className="text-center load-more mt-4 mb-4" >
+									<Button variant="primary" type="button" disabled="">
+										<Spinner animation="grow" size="sm" className='mr-1' />
+										Loading...
+									</Button>  
+									<div style={{height:'250px'}}></div>
+								</Col>}
+	                        {  this.state.customerAddressList.length >0&&
+							  <React.Fragment>
+								{ this.state.customerAddressList.length>1 &&
+								  <h6 className="mb-3 text-black-50">Multiple addresses in this location</h6>}
+								<Row>
+								 {
+									this.state.customerAddressList.map((item,key)=>(
+										<Col md={6} key={key}>
+											<ChooseAddressCard 
+											    
+											    delId={item.id}
+												boxclassName="border border-success"
+												title={item.first_name+" "+item.last_name}
+												icoIcon= 'location-pin'
+												iconclassName= 'icofont-3x'
+												address={item.add_line1+","+item.add_line2+","+item.add_city+","
+												         +item.add_state+","+item.add_country+" "+item.pincode}
+												onDeliverHereClick={this.setDeliveryAddress}
+											/>
+									   </Col>
+									))
+								 }
+								
+								<Col md={6}>
+									<ChooseAddressCard 
+										title= 'Or add a new delivery address'
+										icoIcon= 'location-pin'
+										iconclassName= ''
+										type=""
+										address= ''
+										onAddNewClick={() => this.setState({ showAddressModal: true })}
+									/>
+								</Col>
+								</Row>
+								
+								</React.Fragment>}
+	                     </div>}
+						  
+						   
+						   {  this.state.cartItems.length >0&&
+							   <div className="bg-white rounded shadow-sm p-4 mb-4 mt-4">
+							  
+							  <Row>
+							  <Col md={6} >
+								<div className=''>
+								   <h5 className="mb-3">Payment information's</h5>
+									<div className="form-check form-check-inline">
+										<input className="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" />
+										<label className="form-check-label" htmlFor="inlineRadio1">Cash on delivery</label>
+									</div>
+									<div className="mb-2 bg-white rounded p-2 clearfix">
+										<InputGroup className="input-group-sm mb-2">
+											<Form.Control type="text" placeholder="Enter promo code" value={this.state.selectedCoupon} readOnly/>
+											<InputGroup.Append>
+											<Button variant="primary" type="button" id="button-addon2"
+											        onClick={this.applyCoupon}><Icofont icon="sale-discount" />APPLY</Button>
+											</InputGroup.Append>
+										</InputGroup>
+									</div>
+									<div className='d-flex'>
+									   <Button className='w-50 mr-2' variant="primary" type="button" id="button-addon2" onClick={()=>this.setState({showCouponModal:true})}><Icofont icon="ticket" />coupons</Button>
+									   <Button className='w-50' variant="primary" type="button" id="button-addon2" onClick={this.removeCoupon}>Remove coupon</Button>
+									</div>
+									
+								</div>
+							 </Col>
+							 <Col md={6}>
+							   <h5 className="mb-3">Cart Total</h5>
+							   <h6>Sub Total {Config.CURRENCY+" "+this.state.subTotal}</h6>
+							   <h6>Order Total {Config.CURRENCY+" "+this.state.grandTotal}</h6>
+							   <br/>
+							   <Button variant="warning" type="button" id="button-addon2">PLACE ORDER</Button>
+							 </Col>
+							</Row>
+						   </div>}
+						 
+				   </Col>
+	              
 	            </Row>
 	         </Container>
 	      </section>
@@ -367,4 +283,4 @@ class Checkout extends React.Component {
 }
 
 
-export default Checkout;
+export default withToast(Checkout);

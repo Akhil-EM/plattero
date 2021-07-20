@@ -28,7 +28,7 @@ class CartDropdownHeader extends React.Component {
 }
 
 CartDropdownHeader.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   subTitle: PropTypes.string,
   className: PropTypes.string,
   image: PropTypes.string,
