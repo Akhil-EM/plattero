@@ -15,6 +15,7 @@ import TrackOrder from './components/TrackOrder';
 import Invoice from './components/Invoice';
 import Checkout from './components/Checkout';
 import Detail from './components/Detail';
+import About from './components/About'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
 import 'react-select2-wrapper/css/select2.css';
@@ -22,21 +23,21 @@ import './App.css';
 import { ToastProvider} from 'react-toast-notifications';
 import {CommonApi} from './API/Common.API';
 import Menu  from './components/Menu'
+import TermsAndConditions from './components/TermsAndConditions';
+import PrivacyAndPolicy from './components/PrivacyAndPolicy';
+import HelpAndSupport from './components/HelpAndSupport';
 class App extends React.Component  {
   constructor(props) {
     super(props)
-  
-    this.state = {
-       
-    }
     this.loadBasicConfigurations();
   }
-  
+
+
   render() {
     return (
       <>
       <ToastProvider autoDismiss={true} autoDismissTimeout='2000'>
-      <Header/>
+      <Header />
       
           {/* {
             (this.props.location.pathname!=='/login' && this.props.location.pathname!=='/register') ? <Header/>:''
@@ -55,8 +56,12 @@ class App extends React.Component  {
             <Route path="/invoice" exact component={Invoice} />
             <Route path="/checkout" exact component={Checkout} />
             <Route path="/thanks" exact component={Thanks} />
-            <Route path="/detail/:id" exact component={Detail} />
+            <Route path="/detail/:id" exact component={Detail} renderApp={this.renderApp}/>
             <Route path="/menu/:id"  component={Menu} />
+            <Route path="/about" exact component={About}/>
+            <Route path="/terms-and-conditions" exact component={TermsAndConditions}/>
+            <Route path="/privacy-policy" exact component={PrivacyAndPolicy} />
+            <Route path="/help-and-support" exact component={HelpAndSupport}/>
             <Route exact component={NotFound} />
           </Switch>
           {/* {

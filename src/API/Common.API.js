@@ -38,6 +38,9 @@ const CommonApi={
                          field:_field},
                          {headers:{Authorization:`Bearer ${Config.INTEGRATION_TOKEN}`}})
         
+    },
+    contactUs:(_name,_email,_phone,_subject,_message)=>{
+        console.log(_name,_email,_phone,_subject,_message)
     }
 }
 export  {CommonApi};

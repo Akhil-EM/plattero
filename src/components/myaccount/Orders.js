@@ -73,7 +73,7 @@ class Orders extends React.Component {
 							address={item.restuarant.address+","+item.restuarant.city}
 							orderProducts='Veg Masala Roll x 1, Veg Burger x 1, Veg Penne Pasta in Red Sauce x 1'
 							orderTotal={Config.CURRENCY+" "+item.total} 
-							helpLink='#'
+							helpLink='/help-and-support'
 							detailLink='/detail'/>
 					 ))
 						

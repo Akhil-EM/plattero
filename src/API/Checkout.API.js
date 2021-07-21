@@ -52,6 +52,14 @@ const CheckoutApi={
         return http.delete(Config.APPLICATION_URL_SECOND+'carts/mine/coupons',
         {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
 
+    },
+    placeOrder:(_orderNotes,_payMethod,_addressId,_payment)=>{
+        return http.post(Config.APPLICATION_BASE_URL+'/order',
+            {order_customer_notes:_orderNotes,
+             pay_method:_payMethod,
+             address_id:_addressId,
+             payment:{}},
+            {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
     }
 
    

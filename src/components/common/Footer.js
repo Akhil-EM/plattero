@@ -15,10 +15,10 @@ class Footer extends React.Component {
 		               <Col xs={12}>
 		                  <p className={this.props.popularFHclassName}>MORE </p>
 		                  <div className="search-links">
-		                     <Link to="#">About us</Link> |  
-		                     <Link to="#">Terms & Conditions</Link> | 
-		                     <Link to="#">Privacy & Policy</Link> |  
-		                     <Link to="#">Help & Support</Link>  |  
+		                     <Link to="/about">About us</Link> |  
+		                     <Link to="/terms-and-conditions">Terms & Conditions</Link> | 
+		                     <Link to="/privacy-policy">Privacy & Policy</Link> |  
+		                     <Link to="/help-and-support">Help & Support</Link>  |  
 		                  </div>
 		               </Col>
 		            </Row>

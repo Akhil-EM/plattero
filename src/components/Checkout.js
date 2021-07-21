@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {Link,withRouter} from 'react-router-dom';
 import {Row,Col,Container,Form,InputGroup,Button,Spinner,Image} from 'react-bootstrap';
 import ChooseAddressCard from './common/ChooseAddressCard';
 import AddAddressModal from './modals/AddAddressModal';
@@ -117,7 +117,20 @@ class Checkout extends React.Component {
 					   this.props.addToast(error.response.data.message, { appearance: 'warning' });
 				   })
 	}
-
+    
+	placeOrder=()=>{
+		if(this.state.deliveryAddressId===null){
+			this.props.addToast("Select an address to delivery ", { appearance: 'warning' });
+		}
+		CheckoutApi.placeOrder('','cod',this.state.deliveryAddressId)
+		           .then((response)=>{
+					   console.log(response);
+					   this.props.history.push({pathname:'/thanks',
+							state:{orderId:response.data.data.order_number}});
+				   }).catch((error)=>{
+					   console.log(error);
+				   })
+	}
 	render() {
     	return (
     		<section className="offer-dedicated-body mt-4 mb-4 pt-2 pb-2">
@@ -148,7 +161,7 @@ class Checkout extends React.Component {
                         <h6 className="font-weight-bold mb-0">TO PAY  <span className="float-right">{Config.CURRENCY+" "+this.state.grandTotal}</span></h6>
 						</div>
                      </div>
-                 	<Link to="/thanks" className="btn btn-success btn-block btn-lg">PAY {Config.CURRENCY+" "+this.state.grandTotal}
+                 	<Link to="#" onClick={this.placeOrder} className="btn btn-success btn-block btn-lg">PAY {Config.CURRENCY+" "+this.state.grandTotal}
                  	<Icofont icon="long-arrow-right" /></Link>
 	   				</div>
 				      {/* <div className="pt-2"></div> */}
@@ -268,7 +281,10 @@ class Checkout extends React.Component {
 							   <h6>Sub Total {Config.CURRENCY+" "+this.state.subTotal}</h6>
 							   <h6>Order Total {Config.CURRENCY+" "+this.state.grandTotal}</h6>
 							   <br/>
-							   <Button variant="warning" type="button" id="button-addon2">PLACE ORDER</Button>
+							   <Button variant="warning"
+							           type="button" 
+									   id="button-addon2"
+									   onClick={this.placeOrder}>PLACE ORDER</Button>
 							 </Col>
 							</Row>
 						   </div>}
@@ -283,4 +299,4 @@ class Checkout extends React.Component {
 }
 
 
-export default withToast(Checkout);
+export default withRouter(withToast(Checkout));

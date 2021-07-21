@@ -60,6 +60,7 @@ class BestSeller extends React.Component {
                   console.log(response)
                   this.setState({quantity:1})
                   this.props.addToast("Item added to cart..!", { appearance: 'success' });
+                  window.location.reload();
                }).catch((error)=>{
                  console.log(error.response.data.message)
                  this.setState({alertMessage:error.response.data.message,showAlert:true})

@@ -1628,3 +1628,15 @@ p{
     padding:5px;
     margin-right:8px;
 }
+.text-ash{
+    color:#535665
+}
+
+.text-ash-underlined{
+    color:#535665;
+    border-bottom:4px solid rgb(248, 37, 0);
+    width:min-content;
+    white-space: nowrap;
+    padding-bottom:10px;
+
+}

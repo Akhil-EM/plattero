@@ -74,6 +74,8 @@ class List extends React.Component {
 				this.setState({loaderDisplay:'none'})
 			});
 	}
+
+
 	checkIsFavorite(_rest_id){
 		const found = favoriteRestaurantIdList.find(element => element ===_rest_id);
         if(found===undefined) return false;
@@ -81,6 +83,7 @@ class List extends React.Component {
 	}
 	render() {
 		let restaurantList=this.state.restaurantList;
+		console.log(restaurantList)
     	return (
     		<>  
 	    		<section className="section pt-2 pb-5 products-listing">
@@ -138,6 +141,7 @@ class List extends React.Component {
 											image={item.thumnail_img}
 											imageClass='img-fluid item-img'
 											linkUrl={`detail/${item.id}`}
+											isServiceable={item.is_servicable}
 											offerText='65% off | Use Coupon OSAHAN50'
 											time={item.average_delivery_time}
 											price={Config.CURRENCY+" "+item.avg_price_person+" per person"}

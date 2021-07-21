@@ -7,7 +7,6 @@ import { CommonApi } from '../API/Common.API';
 import {HeaderApi} from '../API/Header.API';
 import Config from '../CONFIG';
 
-
 class Detail extends React.Component {
 	constructor(props) {
 	    super(props);
@@ -32,7 +31,7 @@ class Detail extends React.Component {
 	}
 
 	componentDidMount(){
-          this.getInitialData();
+        this.getInitialData();
 	}
      
 	getInitialData(){
@@ -64,7 +63,6 @@ class Detail extends React.Component {
 	}
     
 	getCartData=()=>{
-	 console.log('cart info')
 	  HeaderApi.getCartData()
 		.then((response)=>{
 			let resArray=response.data.data.cartitems;
@@ -111,6 +109,7 @@ class Detail extends React.Component {
 				  this.setState({foodList:response.data.data.products,
 					             loaderDisplay:false});
 				}).catch((error)=>{
+					
 					console.log(error)
 					this.setState({loaderDisplay:'none',
 					               loaderDisplay:false})
@@ -119,8 +118,6 @@ class Detail extends React.Component {
 
 
 	render() {
-
-		console.log(this.state.foodList)
     	return (
 		<>
     	  <section className="restaurant-detailed-banner">

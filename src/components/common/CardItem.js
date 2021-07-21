@@ -4,6 +4,14 @@ import {Image,Badge,Spinner} from 'react-bootstrap';
 import PropTypes from 'prop-types'; 
 import Icofont from 'react-icofont';
 import { ProfileApi } from '../../API/Profile.API';
+import { useToasts } from 'react-toast-notifications'
+
+function withToast(Component) {
+  return function WrappedComponent(props) {
+    const toastFuncs = useToasts()
+    return <Component {...props} {...toastFuncs} />;
+  }
+}
 class CardItem extends React.Component {
 	constructor(props) {
 		super(props)
@@ -25,6 +33,7 @@ class CardItem extends React.Component {
     }
 	
 	navigate=(_to)=>{
+		if(!this.props.isServiceable)return this.props.addToast("Sorry this restaurant is not serviceable..!", { appearance: 'warning' });
 		this.props.history.push(`/detail/${_to}`)
 	}
 
@@ -155,4 +164,4 @@ CardItem.defaultProps = {
 	rating: '',
 }
 
-export default withRouter(CardItem);
+export default withToast(withRouter(CardItem));

@@ -15,18 +15,30 @@ class Menu extends Component {
              loaderDisplay:true,
              loaderTwoDisplay:true,
              searchTerm:this.props.location.state.searchTerm,
+             searchTerm2:this.props.location.state.searchTerm,
              categoryId:this.props.match.params.id
         }
 
     }
 
-    componentWillMount(){
+    componentDidMount(){
         this.getInitialData();
-        
     }
+    
+    
+    static getDerivedStateFromProps(props, state) {
+        if(props.location.state.searchTerm !== state.searchTerm){
+            return{
+                searchTerm:props.location.state.searchTerm,
+            };
+        }
+        return null;
+    }
+	
 
     getInitialData(){
         this.setState({loaderDisplay:true})
+        
         CommonApi.categories(0)
                  .then((response)=>{
                      this.setState({categoryList:response.data.data,
@@ -35,20 +47,20 @@ class Menu extends Component {
                      console.log(error)
                      this.setState({loaderDisplay:false})
                  });
-        
-        if(this.state.searchTerm==='')this.getFoodList(0,0,"")
-        else this.getFoodList(0,0,this.state.searchTerm)
+       
+            if(this.state.searchTerm==='') this.getFoodList(0,0,"");
+            else this.getFoodList(0,0,this.state.searchTerm);
+
+       
     }
 
     getFoodList=(_categoryId,_navItemId,_searchString)=>{
 		this.setState({loaderTwoDisplay:true,
 			           selectedNavItem:_navItemId})
-        // (_currentPage,_categoryId,_restaurantId,_pagesize,_searchString,
-        //                 _field,_direction)
 		CommonApi.products(1,_categoryId,"",100,_searchString,"",'desc')
 	            .then((response)=>{
 				  
-                  console.log(response.data.data)
+                //   console.log(response.data.data)
 				  this.setState({foodList:response.data.data.products,
                                  loaderTwoDisplay:false});
 				}).catch((error)=>{
@@ -58,9 +70,7 @@ class Menu extends Component {
 				})
 	}
 
-    getQty = ({id,quantity}) => {
-    	//console.log(id);
-    	//console.log(quantity);
+    getQty = ({id,quantity}) => {;
 	}
 
     closeSearch=()=>{
@@ -69,8 +79,7 @@ class Menu extends Component {
     }
 
     
-    render() {
-        console.log(this.state.searchTerm)
+    render(){
         return (
             <div>
                <br/>

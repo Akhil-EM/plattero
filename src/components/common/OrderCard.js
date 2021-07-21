@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types'; 
-import {Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import {Image,Media} from 'react-bootstrap';
 import Icofont from 'react-icofont';
 import OrderDetail from '../offcanvas/OrderDetail';
@@ -92,7 +92,7 @@ class OrderCard extends React.Component {
 	                      <hr />
 	                      <div className="">
 		                      <Link className="btn btn-sm btn-outline-primary mr-1 mt-1" to={this.props.helpLink}><Icofont icon="headphone-alt" /> HELP</Link>
-		                      <button className="btn btn-sm btn-primary mt-1" to='' onClick={()=>this.handleShow(this.props.id)}><Icofont icon="info-circle" className='pr-1'/> ORDER DETAILS</button>
+		                      <button className="btn btn-sm btn-primary mt-1" to='#' onClick={()=>this.handleShow(this.props.id)}><Icofont icon="info-circle" className='pr-1'/> ORDER DETAILS</button>
 	                      </div>
 	                      <p className="mb-0 text-black text-primary pt-2 float-right">
 	                      	<span className="text-black font-weight-bold"> Total Paid:</span> {this.props.orderTotal}
