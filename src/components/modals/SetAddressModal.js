@@ -7,20 +7,23 @@ class SetAddressModal extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-            latitude:'',
-			longitude:'',
-			address:{}
+            latitude:10.0260688,
+			longitude:76.3124753,
+			address:'Edappally'
 		}
 	}
     
 	setData=(_latitude,_longitude,_address)=>{
-		this.setState({latitude:_latitude,longitude:_longitude,address:_address})
-		
+		this.setState({latitude:_latitude,longitude:_longitude,address:_address});
 	}
     
 	selectDelivery=()=>{
-		this.props.setLocation(this.state.latitude,this.state.longitude,this.state.address);
+		// this.props.setLocation(this.state.latitude,this.state.longitude,this.state.address);
+		localStorage.setItem('latitude',this.state.latitude);
+		localStorage.setItem('longitude',this.state.longitude);
+		localStorage.setItem('address',this.state.address);
 		this.props.onHide();
+		window.location.reload();
 	}
 	
    

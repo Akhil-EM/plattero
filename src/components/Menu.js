@@ -93,6 +93,7 @@ class Menu extends Component {
     }
     
     render(){
+        console.log(this.state.foodList)
         return (
             <div>
                <br/>
@@ -172,7 +173,7 @@ class Menu extends Component {
 						this.state.foodList.map((item,key)=>(
 							   <Col  md={4} sm={6} className="mb-4 " key={key}>
 									<BestSeller 
-										id={1}
+										id={item.id}
 										title={item.name}
 										// subTitle='North Indian • American • Pure veg'
 										imageAlt={item.url_key}
@@ -186,6 +187,7 @@ class Menu extends Component {
 										promotedVariant='dark'
 										favIcoIconColor='text-danger'
 										rating='3.1 (300+)'
+                                        isServiceable={item.is_servicable}
 										getValue={this.getQty}
 									/>
 							    </Col>

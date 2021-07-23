@@ -53,8 +53,15 @@ class BestSeller extends React.Component {
                 });
     }
   }
-
+ 
+  componentDidMount(){
+    console.log(this.props.isServiceable?"yes one"+this.props.title:'no iam not')
+  }
   addToCart=()=>{
+    
+    if(!this.props.isServiceable){
+       return this.props.addToast("This restaurant is not serviceable.", { appearance: 'warning' });
+    }
     CheckoutApi.addToCart(this.props.id)
                .then((response)=>{
                   console.log(response)
@@ -62,12 +69,16 @@ class BestSeller extends React.Component {
                   this.props.addToast("Item added to cart..!", { appearance: 'success' });
                   window.location.reload();
                }).catch((error)=>{
-                 console.log(error.response.data.message)
-                 if(error.response.data.message==='Unauthenticated.'){
+                 let str='Your cart contain dishes';
+                 let errorMessage=error.response.data.message;
+                 if(errorMessage==='Unauthenticated.'){
                    this.props.addToast('you must login to add cart item', { appearance: 'warning' });
                    this.props.history.push('/login');
                  }
-                   
+                 if(errorMessage.includes(str))
+                  {
+                     this.setState({showAlert:true,alertMessage:error.response.data.message})
+                  }
                });
   }
 

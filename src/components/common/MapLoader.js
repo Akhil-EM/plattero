@@ -38,6 +38,7 @@ export class MapLoader extends Component {
         // console.log('Success', latLng);
         // update center state
          this.props.setInfo(latLng.lat,latLng.lng,address)
+         if(latLng==='') console.log('it is null')
         this.setState({ mapCenter: latLng});
       })
       .catch(error => console.error('Error', error));

@@ -218,6 +218,7 @@ class Detail extends React.Component {
 										favIcoIconColor='text-danger'
 										rating='3.1 (300+)'
 										getValue={this.getQty}
+										isServiceable={item.is_servicable}
 										renderParent={this.getCartData}
 										qty={this.checkProductInCart(item.id)}
 									/>

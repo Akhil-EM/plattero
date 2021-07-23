@@ -51,13 +51,11 @@ class Header extends React.Component {
 	}
     searchChanged=(event)=>this.setState({searchFor:event.target.value});
 	
-	setLocation=(_latitude,_longitude,_address)=>{
-		console.log(_latitude,_longitude,_address);
-		localStorage.setItem('latitude',_latitude);
-		localStorage.setItem('longitude',_longitude);
-		localStorage.setItem('address',_address);
-		window.location.reload();
-	}
+	// setLocation=(_latitude,_longitude,_address)=>{
+	// 	console.log(_latitude,_longitude,_address);
+		
+	// 	window.location.reload();
+	// }
 
     setIsNavExpanded = (isNavExpanded) => {
       this.setState({ isNavExpanded: isNavExpanded });
@@ -114,7 +112,8 @@ class Header extends React.Component {
     	return (
     		<div ref={node => this.node = node}>
 				{/* this.state.showDeliveryAddressSelector */}
-			<SetAddressModal setLocation={this.setLocation} show={this.state.showDeliveryAddressSelector} onHide={this.hideAddressSelector}/>
+				{/* setLocation={this.setLocation} */}
+			<SetAddressModal show={this.state.showDeliveryAddressSelector} onHide={this.hideAddressSelector}/>
 			<Navbar onToggle={this.setIsNavExpanded}
                expanded={this.state.isNavExpanded} color="light" expand='lg' className="navbar-light osahan-nav shadow-sm">
 			   <Container>
