@@ -64,10 +64,11 @@ class Menu extends Component {
 				  
                 //   console.log(response.data.data)
 				  this.setState({foodList:response.data.data.products,
+                                 loaderDisplay:false,
                                  loaderTwoDisplay:false});
 				}).catch((error)=>{
-					console.log(error)
-					this.setState({loaderDisplay:'none',
+					console.log(error.response.data.message)
+					this.setState({loaderDisplay:false,
                                    loaderTwoDisplay:false})
 				})
 	}
@@ -93,7 +94,6 @@ class Menu extends Component {
     }
     
     render(){
-        console.log(this.state.foodList)
         return (
             <div>
                <br/>
@@ -201,6 +201,7 @@ class Menu extends Component {
                   <div style={{height:'600px'}}/>
               }
 	           
+               
         </div>
         );
     }
