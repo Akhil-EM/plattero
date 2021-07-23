@@ -41,7 +41,7 @@ const ProfileApi={
 
     },
     addNewAddress:(_firstName,_lastName,_addressLine1,
-                   _addressLine2,_city,_state,_country,_pincode)=>{
+                   _addressLine2,_city,_state,_country,_pincode,_latitude,_longitude)=>{
        return axios.post(Config.APPLICATION_URL_SECOND+'addresses/mine',{
         first_name:_firstName,
         last_name:_lastName,
@@ -51,8 +51,8 @@ const ProfileApi={
         add_state:_state,
         add_country:_country,
         pincode:_pincode,
-        lattitude: "45",
-        longitude: "67"},
+        lattitude:_latitude,
+        longitude:_longitude},
         {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
     },
     getAddressList:()=>{
@@ -66,7 +66,7 @@ const ProfileApi={
         })
     },
     updateAddress:(_firstName,_lastName,_addressLine1,
-        _addressLine2,_city,_state,_country,_pincode,_address_id)=>{
+        _addressLine2,_city,_state,_country,_pincode,_address_id,_latitude,_longitude)=>{
         return http.put(`${Config.APPLICATION_URL_SECOND}addresses/mine/${_address_id}`,{
             first_name:_firstName,
             last_name:_lastName,
@@ -76,8 +76,8 @@ const ProfileApi={
             add_state:_state,
             add_country:_country,
             pincode:_pincode,
-            lattitude: "45",
-            longitude: "67"},
+            lattitude:_latitude,
+            longitude:_longitude},
             {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
     },
     addToFavoriteRestaurantList:(_restaurantId)=>{

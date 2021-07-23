@@ -1640,3 +1640,23 @@ p{
     padding-bottom:10px;
 
 }
+
+/* .auto-complete{
+   margin-bottom:-450px;
+   background-color: #3ecf8e;
+   z-index:300;
+}
+
+.map-style{
+    position:absolute;
+    top:0
+} */
+
+.pac-container {
+    z-index: 1051 !important;
+}
+.autocomplete-dropdown-container{
+    z-index: 1052 !important;
+    position: absolute;
+
+}

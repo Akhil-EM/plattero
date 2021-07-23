@@ -30,26 +30,39 @@ class List extends React.Component {
 
 	componentWillMount(){
 		this.getInitialData();
+		
 	}
 
 	getInitialData=()=>{
 		this.setState({loaderDisplay:''});
 	    ProfileApi.wishList()
-				  .then((response)=>{
-					  
+				  .then((response)=>{ 
 					  let resArray=response.data.data.items;
 					  if(resArray.length <=0){
-						  this.getRestaurants();
+							if(localStorage.getItem("latitude") === null){
+								this.getRestaurants('','');
+							}else{
+								this.getRestaurants(localStorage.getItem("latitude"),localStorage.getItem("longitude"));
+							} 
 					  }
 					  resArray.forEach(items=>{
 						  favoriteRestaurantIdList.push(parseInt(items.res_id));
 						  if(favoriteRestaurantIdList.length===resArray.length){
-							  this.getRestaurants();
+								if(localStorage.getItem("latitude") === null){
+									this.getRestaurants('','');
+								}else{
+									this.getRestaurants(localStorage.getItem("latitude"),localStorage.getItem("longitude"));
+								} 
 						   }
 					  })
 					  ;
 				  }).catch((error)=>{
-					this.getRestaurants();
+
+						if(localStorage.getItem("latitude") === null){
+							this.getRestaurants('','');
+						}else{
+							this.getRestaurants(localStorage.getItem("latitude"),localStorage.getItem("longitude"));
+						} 
 					console.log(error);
 					this.setState({loaderDisplay:false});
 				  })
@@ -63,9 +76,10 @@ class List extends React.Component {
 			   })
 	}
 	
-	getRestaurants=()=>{
+	getRestaurants=(_latitude,_longitude)=>{
 		this.setState({loaderDisplay:''})
-		CommonApi.restaurants("",'','10.0260688','76.3124753')
+		//CommonApi.restaurants("",'','10.0260688','76.3124753')
+		CommonApi.restaurants("",'',_latitude,_longitude)
 				.then((response)=>{
 				this.setState({restaurantList:response.data.data.restuarants,
 								loaderDisplay:'none'})
@@ -83,7 +97,6 @@ class List extends React.Component {
 	}
 	render() {
 		let restaurantList=this.state.restaurantList;
-		console.log(restaurantList)
     	return (
     		<>  
 	    		<section className="section pt-2 pb-5 products-listing">
@@ -114,7 +127,7 @@ class List extends React.Component {
 									 <Image key={key} 
 									        src={item.banner_img} 
 											className="img-fluid w-100"
-											alt='offers' />
+											alt='offers'/>
 								  ))
 							  }
 							 
@@ -122,14 +135,16 @@ class List extends React.Component {
 						 </Col>
 						</Row>
 					}
-					   <br></br>
-					   {restaurantList.length>0? <h3 className='app-text-main pl-3'>{restaurantList.length} Restaurants found in this location</h3>:''}
-					   <br></br>
+					  
 			            <Row>
 						  
 			               <Col >
 			                  <Row>
-							  
+							    { (restaurantList.length==0 && this.state.loaderDisplay =='none')&&
+									<div className='text-center  w-100 mt-5' style={{height:'250px'}}>
+                                        <h4 className='text-ash'>No Restaurant's found for this location...!</h4>
+									</div>
+								}
 								{
 								  restaurantList.map((item,key)=>(
 									<Col md={3} sm={4} className="mb-4 pb-2" key={key}>

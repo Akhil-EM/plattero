@@ -4,6 +4,7 @@ import {Row,Col,Container,Form,InputGroup,Button,Tab,Nav,Image,Badge,Spinner} fr
 import BestSeller from './common/BestSeller';
 import Config from '../CONFIG';
 import {AiOutlineClose} from 'react-icons/ai'
+import {withRouter} from 'react-router-dom'
 class Menu extends Component {
     constructor(props) {
         super(props)
@@ -26,14 +27,15 @@ class Menu extends Component {
     }
     
     
-    static getDerivedStateFromProps(props, state) {
-        if(props.location.state.searchTerm !== state.searchTerm){
-            return{
-                searchTerm:props.location.state.searchTerm,
-            };
-        }
-        return null;
-    }
+    // static getDerivedStateFromProps(props, state) {
+    //     console.log('props state')
+    //     if(props.location.state.searchTerm !== state.searchTerm){
+    //         return{
+    //             searchTerm:props.location.state.searchTerm,
+    //         };
+    //     }
+    //     return null;
+    // }
 	
 
     getInitialData(){
@@ -74,10 +76,21 @@ class Menu extends Component {
 	}
 
     closeSearch=()=>{
-       this.setState({searchTerm:''});
-       this.getFoodList(0,0,"")
+    //    this.setState({searchTerm:''});
+    //    this.getFoodList(0,0,"")
+    this.props.history.push({pathname:`/menu/0`,
+    search: `?search_input=`,
+    state:{from:'search',searchTerm:''}
+});
     }
+    
+    componentDidUpdate(prevProps){
 
+        if (this.props.location.state.searchTerm !== prevProps.location.state.searchTerm) {
+            this.setState({searchTerm:this.props.location.state.searchTerm});
+            this.getFoodList(0,0,this.props.location.state.searchTerm);
+        }
+    }
     
     render(){
         return (
@@ -99,8 +112,9 @@ class Menu extends Component {
                {!this.state.loaderDisplay  &&
                 <section className="offer-dedicated-nav bg-white border-top-0 shadow-sm">
                  
-		        { this.state.searchTerm===''?
-                    <Container>
+		       
+                    {this.state.searchTerm===''?
+                        <Container>
                         <Row>
                         <Col md={12}>
                             
@@ -125,8 +139,8 @@ class Menu extends Component {
                         <button className='btn mb-3 ml-3 p-0' onClick={this.closeSearch}>
                              <AiOutlineClose fontSize='1.5em' className='m-0 p-0' />
                         </button>
-                    </div>
-                }
+                    </div>}
+                
 	      	</section>}
             <br/>
             {
@@ -192,4 +206,4 @@ class Menu extends Component {
 
 
 
-export default Menu;
+export default withRouter(Menu);

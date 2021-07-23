@@ -38,11 +38,9 @@ class App extends React.Component  {
       <>
       <ToastProvider autoDismiss={true} autoDismissTimeout='2000'>
       <Header />
-      
           {/* {
             (this.props.location.pathname!=='/login' && this.props.location.pathname!=='/register') ? <Header/>:''
           } */}
-          
           <Switch>
             <Route path="/" exact component={List} />
             <Route path="/offers" exact component={Offers} />

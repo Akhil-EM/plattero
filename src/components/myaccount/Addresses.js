@@ -18,7 +18,9 @@ class Addresses extends React.Component {
 		  editAddressModal:false,
 		  firstName:'',
 		  lastName:'',
-		  addressId:0
+		  addressId:0,
+		  latitude:'',
+		  longitude:''
 	    };
 	}
 
@@ -58,7 +60,7 @@ class Addresses extends React.Component {
     hideAddressModal = () => this.setState({ showAddressModal: false });
     hideEditAddressModal=()=> this.setState({editAddressModal:false});
     showEditAddressModal=(_firstName,_lastName,_addressLine1,_addressLine2,
-		                  _city,_pincode,_state,_id)=>{
+		                  _city,_pincode,_state,_id,_latitude,_longitude)=>{
 		this.setState({firstName:_firstName,
 						lastName:_lastName,
 						addressLine1:_addressLine1,
@@ -67,8 +69,9 @@ class Addresses extends React.Component {
 						pincode:_pincode,
 						state:_state,
 						addressId:_id,
-					    editAddressModal:true,
-					    });
+						latitude:_latitude,
+						longitude:_longitude,
+					    editAddressModal:true,});
 	}
 	render() {
     	return (
@@ -89,7 +92,8 @@ class Addresses extends React.Component {
 							  pincode={this.state.pincode}
 							  state={this.state.state}
 							  addressId={this.state.addressId}
-							  renderParent={this.getInitialData}/>
+							  renderParent={this.getInitialData}
+							  coordinates={{lat:parseFloat(this.state.latitude),lng:parseFloat(this.state.longitude)}}/>
 		    <div className='p-4 bg-white shadow-sm'>
               <Row>
                <Col md={12}>
@@ -121,7 +125,7 @@ class Addresses extends React.Component {
 						address={item.add_line1+' , '+item.add_line2+' , '+item.pincode+' , '+item.add_city+' , '+item.add_state+' , '+item.add_country}
 						onEditClick= {()=>this.showEditAddressModal(item.first_name,item.last_name,item.add_line1,
 							                                        item.add_line2,item.add_city,item.pincode,item.add_state,
-																	item.id)}
+																	item.id,item.lattitude,item.longitude)}
 						onDeleteClick={() => this.showDeleteDialogue(item.id)}
 					  />
 				   </Col>

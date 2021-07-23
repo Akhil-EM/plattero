@@ -61,8 +61,11 @@ class CardItem extends React.Component {
 					   }
 					  
 				  }).catch((error)=>{
-					this.setState({loaderDisplay:false});
-					  console.log(error)
+					  this.setState({loaderDisplay:false});
+					  if(error.response.data.message==='Unauthenticated.'){
+						this.props.addToast('please login to add favorite.', { appearance: 'warning' });
+						this.props.history.push('/login')
+					  }
 				  })
 	}
 

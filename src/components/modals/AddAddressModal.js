@@ -1,7 +1,7 @@
 import React from 'react';
 import {Form,InputGroup,Modal,FormControl,Button} from 'react-bootstrap';
-import {ProfileApi} from '../../API/Profile.API'
-
+import {ProfileApi} from '../../API/Profile.API';
+import MapLoader2 from '../common/MapLoader2';
 class AddAddressModal extends React.Component {
     constructor(props) {
 		super(props)
@@ -22,7 +22,10 @@ class AddAddressModal extends React.Component {
 			 cityError:false,
 			 pincodeError:false,
 			 stateError:false,
-			 invalidPincodeError:false
+			 invalidPincodeError:false,
+			 longitude:null,
+			 latitude:null,
+			 address:null
 		}
 	}
     
@@ -31,7 +34,7 @@ class AddAddressModal extends React.Component {
 			ProfileApi.addNewAddress(this.state.firstName,this.state.lastName,
 				                     this.state.addressLine1,this.state.addressLine2,
 									 this.state.city,this.state.state,this.state.country,
-									 this.state.pincode)
+									 this.state.pincode,this.state.latitude,this.state.longitude)
 					  .then(()=>{
 						  this.setState({ firstName:'',
 										lastName:'',
@@ -109,7 +112,9 @@ class AddAddressModal extends React.Component {
 	    return formError;
 	}
    
-
+    setCoordinates=(_latitude,_longitude,_address)=>{
+		this.setState({latitude:_latitude,longitude:_longitude,address:_address});
+	}
 
 
 	onInputItemChange=(e)=>{
@@ -128,7 +133,10 @@ class AddAddressModal extends React.Component {
 			  </Modal.Header>
 
 			  <Modal.Body>
-			   <div style={{height:'160px',backgroundColor:'#0090bc48'}}/>
+			   <div style={{height:'200px',position:'relative'}}>
+			      <MapLoader2 setInfo={this.setCoordinates} usedTo={'addAddress'}/>
+			   </div>
+			   
   			<Form >
              <div className="form-row pt-3">
 			    <Form.Group className="col-md-6">

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Form,InputGroup,Modal,Spinner,Button} from 'react-bootstrap';
 import {ProfileApi} from '../../API/Profile.API'
-
+import MapLoader3 from '../common/MapLoader3';
 class EditAddressModal extends React.Component {
     constructor(props) {
 		super(props)
@@ -14,6 +14,8 @@ class EditAddressModal extends React.Component {
 			 pincode:'',
 			 state:'',
 			 country:'IN',
+			 latitude:null,
+			 longitude:null,
 			 addressId:null,
 			 firstNameError:false,
 			 lastNameError:false,
@@ -24,6 +26,7 @@ class EditAddressModal extends React.Component {
 			 stateError:false,
 			 invalidPincodeError:false,
 			 loadingApi:false,
+			 coordinates:{}
 		}
 	}
 	
@@ -39,12 +42,17 @@ class EditAddressModal extends React.Component {
 				city:props.city,
 				pincode:props.pincode,
 				state:props.state,
-				addressId:props.addressId
+				addressId:props.addressId,
+                coordinates:props.coordinates
             };
         }
         return null; // No change to state
     }
     
+	setCoordinates=(_latitude,_longitude,_address)=>{
+		this.setState({latitude:_latitude,longitude:_longitude});
+	}
+
 	submitForm=()=>{
         if(!this.validateForm()){
 			this.setState({loadingApi:true});
@@ -52,7 +60,7 @@ class EditAddressModal extends React.Component {
 				                     this.state.addressLine1,this.state.addressLine2,
 									 this.state.city,this.state.state,this.state.country,
 									 this.state.pincode,
-									 this.state.addressId)
+									 this.state.addressId,this.state.latitude,this.state.longitude)
 					  .then(()=>{
 						  this.setState({ firstName:'',
 										lastName:'',
@@ -151,7 +159,9 @@ class EditAddressModal extends React.Component {
 			  </Modal.Header>
 
 			  <Modal.Body>
-			   <div style={{height:'160px',backgroundColor:'#0090bc48'}}/>
+			  <div style={{height:'200px',position:'relative'}}>
+			      <MapLoader3 coordinates={this.props.coordinates} setInfo={this.setCoordinates}  usedTo={'editAddress'}/>
+			  </div>
   			<Form >
              <div className="form-row pt-3">
 			    <Form.Group className="col-md-6">

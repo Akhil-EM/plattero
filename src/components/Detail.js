@@ -56,7 +56,7 @@ class Detail extends React.Component {
 				.then((response)=>{
 				this.setState({categoryList:response.data.data})
 				}).catch((error)=>{
-					console.log(error)
+					console.log(error);
 				});
 
 	  
@@ -81,6 +81,7 @@ class Detail extends React.Component {
 			this.setState({loaderDisplay:false});
 		});
 	}
+	
 	checkProductInCart(_productId){
 		let count=0;
 		for(let i=0;i<this.cartIdList.length;i++){

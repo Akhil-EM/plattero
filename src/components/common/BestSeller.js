@@ -63,7 +63,11 @@ class BestSeller extends React.Component {
                   window.location.reload();
                }).catch((error)=>{
                  console.log(error.response.data.message)
-                 this.setState({alertMessage:error.response.data.message,showAlert:true})
+                 if(error.response.data.message==='Unauthenticated.'){
+                   this.props.addToast('you must login to add cart item', { appearance: 'warning' });
+                   this.props.history.push('/login');
+                 }
+                   
                });
   }
 
@@ -86,13 +90,13 @@ class BestSeller extends React.Component {
                                  message={this.state.alertMessage}
                                  clearCart={this.clearCartAndAddNewProducts}/>
                <div className="list-card-image">
-                  <Link to="#">
+                  <Link to="">
                     <Image src={this.props.image} className={this.props.imageClass} alt={this.props.imageAlt} />
                   </Link>
                </div>
                <div className="p-3 position-relative">
                   <div className="list-card-body">
-                     <h6 className="mb-1"><Link to="#" className="text-black">{this.props.title}</Link></h6>
+                     <h6 className="mb-1"><Link to="" className="text-black">{this.props.title}</Link></h6>
                      {this.props.subTitle ? (
                        <p className="text-gray mb-3">{this.props.subTitle}</p>
                        )
@@ -102,14 +106,14 @@ class BestSeller extends React.Component {
                        <p className="text-gray time mb-0">
                           {
                             parseInt(this.props.specialPrice)===0?
-                            <Link className="btn btn-link btn-sm pl-0 text-black pr-0" to="#">
+                            <Link className="btn btn-link btn-sm pl-0 text-black pr-0" to="">
                               {this.props.priceUnit}{this.props.price} 
                             </Link>:
                             <>
-                             <Link className="btn btn-link btn-sm pl-0 text-black pr-0" to="#">
+                             <Link className="btn btn-link btn-sm pl-0 text-black pr-0" to="">
                               {this.props.priceUnit}{this.props.specialPrice} 
                              </Link> 
-                             <Link className="btn btn-link btn-sm pl-3 text-black pr-0 " to="#">
+                             <Link className="btn btn-link btn-sm pl-3 text-black pr-0 " to="">
                                 <s>{this.props.priceUnit}{this.props.price}</s>
                               </Link>
                             </>

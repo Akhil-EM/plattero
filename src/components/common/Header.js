@@ -51,6 +51,13 @@ class Header extends React.Component {
 	}
     searchChanged=(event)=>this.setState({searchFor:event.target.value});
 	
+	setLocation=(_latitude,_longitude,_address)=>{
+		console.log(_latitude,_longitude,_address);
+		localStorage.setItem('latitude',_latitude);
+		localStorage.setItem('longitude',_longitude);
+		localStorage.setItem('address',_address);
+		window.location.reload();
+	}
 
     setIsNavExpanded = (isNavExpanded) => {
       this.setState({ isNavExpanded: isNavExpanded });
@@ -69,7 +76,10 @@ class Header extends React.Component {
     }
   
 	componentDidMount() {
-	    document.addEventListener('click', this.handleClick, false);      
+	    document.addEventListener('click', this.handleClick, false);   
+		if(localStorage.getItem("latitude") === null){
+			this.setState({showDeliveryAddressSelector:true})
+		}
 	}
 
 	componentWillUnmount() {
@@ -84,6 +94,8 @@ class Header extends React.Component {
 				state:{from:'search',searchTerm:this.state.searchFor}
 			});
 	}
+
+
 
 	logoutUser=()=>{
 		localStorage.clear();
@@ -101,7 +113,8 @@ class Header extends React.Component {
 	render() {
     	return (
     		<div ref={node => this.node = node}>
-			<SetAddressModal show={this.state.showDeliveryAddressSelector} onHide={this.hideAddressSelector}/>
+				{/* this.state.showDeliveryAddressSelector */}
+			<SetAddressModal setLocation={this.setLocation} show={this.state.showDeliveryAddressSelector} onHide={this.hideAddressSelector}/>
 			<Navbar onToggle={this.setIsNavExpanded}
                expanded={this.state.isNavExpanded} color="light" expand='lg' className="navbar-light osahan-nav shadow-sm">
 			   <Container>
@@ -116,7 +129,8 @@ class Header extends React.Component {
 						      <input type='text' 
 							         placeholder="Search for dishes in plattero"
 									 value={this.state.searchFor}
-									 onChange={this.searchChanged}/>
+									 onChange={this.searchChanged}
+									 />
 							  <MdSearch fontSize='2em' width='10%'
 							            onClick={()=>this.navigate('menu')}/>
 						   </div>
@@ -124,7 +138,11 @@ class Header extends React.Component {
 						</Nav.Link>
 						<Nav.Link className='app-text-main' onClick={this.showAddressSelector}>
 							<MdLocationOn fontSize='1.5em'/>
-							Choose location<span className="sr-only">(current)</span>
+							{
+								localStorage.getItem('address')===null?'Choose location':
+								localStorage.getItem('address').slice(0,25)+'...'
+							}
+							<span className="sr-only">(current)</span>
 						</Nav.Link>
 						<Nav.Link eventKey={1} as={NavLink} activeclassname="active" exact to="/">
 						   Restaurants
@@ -203,7 +221,7 @@ class Header extends React.Component {
 												iconClass='text-success food-item'
 												title={item.name}
 												qty={" X "+item.qty}
-												price={Config.CURRENCY+" "+item.special_price}/>
+												price={Config.CURRENCY+" "+(item.special_price===null?item.price:item.special_price)}/>
 											
 										))
 									}
