@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
 import {Row,Col,Container,Button,Tab,Nav,Image,Badge,Spinner} from 'react-bootstrap';
 import BestSeller from './common/BestSeller';
 import Icofont from 'react-icofont';
@@ -26,6 +25,7 @@ class Detail extends React.Component {
 		  foodList:[],
 		  loaderDisplay:true,
 		  selectedNavItem:0,
+		  loadingFooditem:true
 	    };
 		this.cartIdList=[];
 	}
@@ -102,18 +102,20 @@ class Detail extends React.Component {
     	console.log(value);
     	//console.log(quantity);
 	}
+	
 	getFoodList(_categoryId,_navItemId){
 		this.setState({loaderDisplay:true,
+			           loadingFooditem:true,
 			           selectedNavItem:_navItemId})
 		CommonApi.products(1,_categoryId,this.restaurantID,100,"","menu_name",'desc')
 	            .then((response)=>{
 				  this.setState({foodList:response.data.data.products,
+					             loadingFooditem:false,
 					             loaderDisplay:false});
 				}).catch((error)=>{
 					
 					console.log(error)
-					this.setState({loaderDisplay:'none',
-					               loaderDisplay:false})
+					this.setState({loaderDisplay:false,loadingFooditem:false})
 				})
 	}
 
@@ -188,14 +190,27 @@ class Detail extends React.Component {
 			  <br/>
 			  <br/>
 		      <section className="offer-dedicated-body pt-2 pb-2 mt-4 mb-4">
+			  
 			  {
-				this.state.loaderDisplay &&
+				(this.state.loadingFooditem ||this.state.loaderDisplay) &&
                 <Col md={12} className="text-center load-more" >
 					<Button variant="primary" type="button" disabled="">
 						<Spinner animation="grow" size="sm" className='mr-1' />
 						Loading...
 					</Button>  
                 </Col>
+			  }
+			  { 
+			    !this.state.loadingFooditem && this.state.foodList.length===0 &&
+			   <Container>
+		            <Row>
+		               <Col md={12} className="text-center pt-5 pb-5">
+		                  <Image className="img-fluid" src="/img/404.png" alt="404" />
+		                  <h1 className="mt-2 mb-2">No food items found.!</h1> 
+		               </Col>
+		            </Row>
+		        </Container>
+
 			  }
 			  { !this.state.loaderDisplay &&		    
 		        <Container>
@@ -221,6 +236,7 @@ class Detail extends React.Component {
 										isServiceable={item.is_servicable}
 										renderParent={this.getCartData}
 										qty={this.checkProductInCart(item.id)}
+										variants={item.variations}
 									/>
 							    </Col>
 								))

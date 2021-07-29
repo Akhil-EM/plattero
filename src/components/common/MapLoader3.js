@@ -22,7 +22,7 @@ export class MapLoader3 extends Component {
 
   }
 
-  componentWillMount(){
+  componentDidMount(){
   
       this.setState({mapCenter:this.props.coordinates});
     

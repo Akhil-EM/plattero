@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {Card,Media} from 'react-bootstrap';
+import {Card} from 'react-bootstrap';
 import Icofont from 'react-icofont';
 import PropTypes from 'prop-types'; 
 

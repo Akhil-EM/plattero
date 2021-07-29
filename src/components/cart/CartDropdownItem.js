@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types'; 
-import Icofont from 'react-icofont';
-
 class CartDropdownItem extends React.Component {
   constructor(props) {
     super(props)

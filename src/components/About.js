@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link, Route} from 'react-router-dom';
 import {Row,Col,Container,Image,Card} from 'react-bootstrap';
 import Icofont from 'react-icofont';
 class About extends React.Component {

@@ -23,7 +23,7 @@ class Checkout extends React.Component {
 	    super(props, context);
 
 	    this.state = {
-      	  showAddressModal: false,
+      	    showAddressModal: false,
 			cartItems:[],
 			customerAddressList:[],
 			restaurantName:'',
@@ -38,7 +38,8 @@ class Checkout extends React.Component {
 			serviceableStatus:false,
 			showCouponModal:false,
 			selectedCoupon:'',
-			couponApplied:false
+			couponApplied:false,
+			addressListLoading:true
 	    };
 	}
     
@@ -47,6 +48,7 @@ class Checkout extends React.Component {
 	}
 
 	getInitialData=()=>{
+		this.setState({loadingResponse:true,addressListLoading:true});
         CheckoutApi.getCartData()
 		           .then((response)=>{
 					   this.setState({restaurantName:response.data.data.cart.restaurant.name,
@@ -56,17 +58,20 @@ class Checkout extends React.Component {
 									  discount:response.data.data.cart.discount,
 									  subTotal:response.data.data.cart.subtotal,
                                       grandTotal:response.data.data.cart.grandtotal,
-					                  cartItems:response.data.data.cartitems})
+					                  cartItems:response.data.data.cartitems,
+									  loadingResponse:false})
 				   })
 				   .catch((error)=>{
 					   console.log(error)
+					   this.setState({loadingResponse:false})
 				   });
 
 		ProfileApi.getAddressList()
 		          .then((response)=>{
-					  this.setState({customerAddressList:response.data.data.customeraddress})
+					  this.setState({customerAddressList:response.data.data.customeraddress,addressListLoading:false})
 				  }).catch((error)=>{
 					  console.log(error)
+					  this.setState({addressListLoading:false})
 				  })
 		
 		
@@ -78,7 +83,7 @@ class Checkout extends React.Component {
     setDeliveryAddress=(_deliveryAddressID)=>this.setState({deliveryAddressId:_deliveryAddressID},()=>{
 		CheckoutApi.checkoutCart(this.state.deliveryAddressId)
 		           .then((response)=>{
-					   console.log(response.data.data.payment_methods);
+					//    console.log(response.data.data.payment_methods);
 					   this.setState({paymentMethods:response.data.data.payment_methods,serviceableStatus:true});
 					   this.props.addToast("This address selected for delivery.", { appearance: 'info' });
 				   }).catch((error)=>{
@@ -117,6 +122,8 @@ class Checkout extends React.Component {
 					   this.props.addToast(error.response.data.message, { appearance: 'warning' });
 				   })
 	}
+
+
     
 	placeOrder=()=>{
 		if(this.state.deliveryAddressId===null){
@@ -124,9 +131,11 @@ class Checkout extends React.Component {
 		}
 		CheckoutApi.placeOrder('','cod',this.state.deliveryAddressId)
 		           .then((response)=>{
+
 					   console.log(response);
 					   this.props.history.push({pathname:'/thanks',
 							state:{orderId:response.data.data.order_number}});
+					  window.location.reload();
 				   }).catch((error)=>{
 					   console.log(error);
 				   })
@@ -142,6 +151,7 @@ class Checkout extends React.Component {
 	         <Container>
 	            <Row>
 				<Col md={4}>
+				  <div>
 	               	<div className="generator-bg rounded shadow-sm mb-4 p-4 osahan-cart-item">
 					 <div>
                      <div className="d-flex mb-4 osahan-cart-item-profile">
@@ -176,10 +186,29 @@ class Checkout extends React.Component {
 	   				  <div className="text-center pt-2">
 	   				  	<Image fluid src="https://dummyimage.com/352x504/ccc/ffffff.png&text=Google+ads" />
 	   				  </div>
+					</div>
 	               </Col>
 				   <Col md={8}>
 				   <Row>
-			        <h5 className="mb-4 mt-3 col-md-12">{this.state.cartItems.length} ITEMS FOUND IN CART</h5>
+				  {/* { this.state.loadingResponse &&
+				   <Col md={12} className="text-center load-more mt-3" style={{display:this.state.loaderDisplay}}>
+			            <Button variant="primary" type="button" disabled="">
+			                <Spinner animation="grow" size="sm" className='mr-1' />
+				            Loading...
+			            </Button>  
+						<div style={{height:'250px'}}/>
+			        </Col>} */}
+			        { !this.state.loadingResponse && this.state.cartItems.length<=0 &&
+					  <Container>
+						<Row>
+							<Col md={12} className="text-center pt-5 pb-5">
+								<Image className="img-fluid" src="/img/404.png" alt="404" />
+								<h4 className="mt-2 mb-2">No food items found in your cart.!</h4>
+							</Col>
+						</Row>
+				     </Container>
+					  
+					}
 			        <Col md={12}>
 			            {
 							this.state.cartItems.map((item,key)=>(
@@ -193,7 +222,8 @@ class Checkout extends React.Component {
 										specialPrice={item.special_price}
 										priceUnit={Config.CURRENCY}
 										qty={item.qty}
-										renderParent={this.getInitialData}/>
+										renderParent={this.getInitialData}
+										/>
 								</div>
 							))
 						}
@@ -219,7 +249,6 @@ class Checkout extends React.Component {
 									this.state.customerAddressList.map((item,key)=>(
 										<Col md={6} key={key}>
 											<ChooseAddressCard 
-											    
 											    delId={item.id}
 												boxclassName="border border-success"
 												title={item.first_name+" "+item.last_name}
@@ -233,20 +262,23 @@ class Checkout extends React.Component {
 									))
 								 }
 								
-								<Col md={6}>
-									<ChooseAddressCard 
-										title= 'Or add a new delivery address'
-										icoIcon= 'location-pin'
-										iconclassName= ''
-										type=""
-										address= ''
-										onAddNewClick={() => this.setState({ showAddressModal: true })}
-									/>
-								</Col>
 								</Row>
 								
 								</React.Fragment>}
 	                     </div>}
+						{!this.state.addressListLoading && this.state.cartItems.length>0 &&
+							<Row>
+							<Col md={6}>
+										<ChooseAddressCard 
+											title= 'Or add a new delivery address'
+											icoIcon= 'location-pin'
+											iconclassName= ''
+											type=""
+											address= ''
+											onAddNewClick={() => this.setState({ showAddressModal: true })}
+										/>
+									</Col>
+							</Row>}
 						  
 						   
 						   {  this.state.cartItems.length >0&&

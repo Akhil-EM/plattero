@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form,InputGroup,Modal,Spinner,Button} from 'react-bootstrap';
+import {Form,Modal,Spinner,Button} from 'react-bootstrap';
 import {ProfileApi} from '../../API/Profile.API'
 import MapLoader3 from '../common/MapLoader3';
 class EditAddressModal extends React.Component {
@@ -28,27 +28,25 @@ class EditAddressModal extends React.Component {
 			 loadingApi:false,
 			 coordinates:{}
 		}
+
+		this.onInputItemChange=this.onInputItemChange.bind(this)
 	}
 	
-	static getDerivedStateFromProps(props, state) {
-		//invoked when props changed in parent.
-        if(props.fName !== state.firstName){
-            //Change in props
-            return{
-                firstName: props.fName,
-				lastName:props.lName,
-				addressLine1:props.addLine1,
-				addressLine2:props.addLine2,
-				city:props.city,
-				pincode:props.pincode,
-				state:props.state,
-				addressId:props.addressId,
-                coordinates:props.coordinates
-            };
-        }
-        return null; // No change to state
-    }
-    
+	componentWillReceiveProps(nextProps) {
+		// You don't have to do this check first, but it can help prevent an unneeded render
+		if (nextProps.firstName !== this.state.firstName) {
+		  this.setState({ firstName: nextProps.firstName,
+			              addressLine1:nextProps.addLine1,
+							addressLine2:nextProps.addLine2,
+							city:nextProps.city,
+							pincode:nextProps.pincode,
+							state:nextProps.state,
+							addressId:nextProps.addressId,
+							coordinates:nextProps.coordinates,
+							lastName:nextProps.lastName});
+		}
+	  }
+	
 	setCoordinates=(_latitude,_longitude,_address)=>{
 		this.setState({latitude:_latitude,longitude:_longitude});
 	}
@@ -128,7 +126,7 @@ class EditAddressModal extends React.Component {
 			this.setState({pincodeError:true});
 		}
 
-		if((this.state.pincode).length !=6){
+		if((this.state.pincode).length !==6){
 			formError=true;
 			this.setState({pincodeError:true,
 				           invalidPincodeError:true});
@@ -146,6 +144,7 @@ class EditAddressModal extends React.Component {
 	onInputItemChange=(e)=>{
         this.setState({[e.target.name]:e.target.value});
     }
+
 	
 	render() {
     	return (
@@ -155,7 +154,7 @@ class EditAddressModal extends React.Component {
 		        centered
 		   	  >
 			  <Modal.Header closeButton={true}>
-			    <Modal.Title as='h5' id="add-address">Add Delivery Address</Modal.Title>
+			    <Modal.Title as='h5' id="add-address">Edit Delivery Address</Modal.Title>
 			  </Modal.Header>
 
 			  <Modal.Body>
@@ -169,6 +168,7 @@ class EditAddressModal extends React.Component {
                    <Form.Control type="text" 
 				                 placeholder="Enter first name" 
 								 value={this.state.firstName}
+								//  e => this.onTodoChange(e.target.value)
 								 onChange={this.onInputItemChange}
 								 name='firstName'
 								 className={this.state.firstNameError?'is-invalid':''}/>

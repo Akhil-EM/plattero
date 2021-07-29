@@ -30,6 +30,7 @@ class Favourites extends React.Component {
 	}
 	
 	render() {
+		console.log(this.state.favoriteList)
     	return (
     		<>
     		    <div className='p-4 bg-white shadow-sm'>
@@ -78,6 +79,7 @@ class Favourites extends React.Component {
 										promotedVariant='dark'
 										favIcoIconColor='text-danger'
 										rating={item.res_rating}
+										isServiceable={item.is_servicable}
 										renderParent={this.getInitialData}
 									/>
 								</Col>

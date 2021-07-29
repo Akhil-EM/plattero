@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link,withRouter} from 'react-router-dom';
-import {Row,Col,Container,Form,Button,Image} from 'react-bootstrap';
+import {Row,Col,Container,Form,Button,Image,Spinner} from 'react-bootstrap';
 import {AuthenticationApi} from '../API/Authentication'
 import { useToasts } from 'react-toast-notifications'
 
@@ -29,6 +29,7 @@ class Register extends React.Component {
 			 phoneError:false,
 			 passwordError:false,
 			 confirmPasswordError:false,
+			 isLoading:false
 		}
 	}
 
@@ -39,6 +40,7 @@ class Register extends React.Component {
 	formSubmit=(event)=>{
 		event.preventDefault();
 		if(this.validateForm()){
+			this.setState({isLoading:true})
 			var fName=this.state.firstName;
 			var lName=this.state.lastName;
 			var email=this.state.email;
@@ -46,13 +48,28 @@ class Register extends React.Component {
 			var password=this.state.password;
 			AuthenticationApi.registerUser(fName,lName,phone,email,password)
 			               .then((response)=>{
-							   console.log(response);
-							   this.props.addToast(response.message, { appearance: 'success' });
-							   this.props.history.push('/login');
-							   window.location.reload();
+							   this.props.addToast(response.data.message, { appearance: 'success' });
+							   setTimeout(()=>{
+								    this.setState({isLoading:false});
+									setTimeout(()=>{
+										this.props.history.push('/login');
+										window.location.reload();
+									},1000)
+									
+							   },1000)
+							  
 						   }).catch((error)=>{
-							   console.log(error)
-							   this.props.addToast(error.response.data.message, { appearance: 'error' });
+							  this.setState({isLoading:false});
+							   console.log(error.response)
+							   if(error.response.data.errors!==undefined){
+								   if(error.response.data.errors.phone){
+									 this.props.addToast(error.response.data.errors.phone[0], { appearance: 'error' });
+								   }
+								   if(error.response.data.errors.email){
+									this.props.addToast(error.response.data.errors.email[0], { appearance: 'error' });
+								   }
+								  
+							   }
 						   })
 		}
 	}
@@ -188,7 +205,13 @@ class Register extends React.Component {
 	                              </div>
 								   <Button type="submit" variant="outline-danger"
 										   className="btn btn-lg btn-outline-primary btn-block btn-login text-uppercase font-weight-bold mb-2">
-									 Sign Up
+									 {
+										this.state.isLoading?
+										<span>
+										  <Spinner animation="grow" size="sm" className='mr-1' />
+										  please wait...
+										 </span>:'Sign In'
+									 }
 								   </Button>
 	                              {/* <Link to="/login" className="btn btn-lg btn-outline-primary btn-block btn-login text-uppercase font-weight-bold mb-2">Sign Up</Link> */}
 	                              <div className="text-center pt-3">
@@ -205,6 +228,4 @@ class Register extends React.Component {
     	);
     }
 }
-
-
 export default withRouter(withToast(Register));

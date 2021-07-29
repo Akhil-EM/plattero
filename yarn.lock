@@ -8319,6 +8319,11 @@
     "uncontrollable" "^6.1.0"
     "warning" "^4.0.3"
 
+"react-content-loader@^6.0.3":
+  "integrity" "sha512-CIRgTHze+ls+jGDIfCitw27YkW2XcaMpsYORTUdBxsMFiKuUYMnlvY76dZE4Lsaa9vFXVw+41ieBEK7SJt0nug=="
+  "resolved" "https://registry.npmjs.org/react-content-loader/-/react-content-loader-6.0.3.tgz"
+  "version" "6.0.3"
+
 "react-context-toolbox@^2.0.2":
   "integrity" "sha512-tY4j0imkYC3n5ZlYSgFkaw7fmlCp3IoQQ6DxpqeNHzcD0hf+6V+/HeJxviLUZ1Rv1Yn3N3xyO2EhkkZwHn0m1A=="
   "resolved" "https://registry.npmjs.org/react-context-toolbox/-/react-context-toolbox-2.0.2.tgz"
@@ -8548,7 +8553,7 @@
     "loose-envify" "^1.4.0"
     "prop-types" "^15.6.2"
 
-"react@*", "react@^0.14.0 || ^15.0.0 || ^16.0.0", "react@^0.14.0 || ^15.0.0-rc || ^15.0.0 || ^16.0.0", "react@^16.14.0", "react@^16.8.0 || ^17.0.0", "react@^16.8.6", "react@>=0.14.0", "react@>=0.14.7", "react@>=15", "react@>=15.0.0", "react@>=16.3.0", "react@>=16.3.2", "react@>=16.6.0", "react@>=16.8.0", "react@~0.14.8 || ^15.0.0 || ^16.0.0", "react@0.14.x || ^15.0.0 || ^16.0.0", "react@0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0":
+"react@*", "react@^0.14.0 || ^15.0.0 || ^16.0.0", "react@^0.14.0 || ^15.0.0-rc || ^15.0.0 || ^16.0.0", "react@^16.14.0", "react@^16.8.0 || ^17.0.0", "react@^16.8.6", "react@>=0.14.0", "react@>=0.14.7", "react@>=15", "react@>=15.0.0", "react@>=16.0.0", "react@>=16.3.0", "react@>=16.3.2", "react@>=16.6.0", "react@>=16.8.0", "react@~0.14.8 || ^15.0.0 || ^16.0.0", "react@0.14.x || ^15.0.0 || ^16.0.0", "react@0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0":
   "integrity" "sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g=="
   "resolved" "https://registry.npmjs.org/react/-/react-16.14.0.tgz"
   "version" "16.14.0"

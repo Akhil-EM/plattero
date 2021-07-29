@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form,Modal,Button,Alert,Col,Spinner} from 'react-bootstrap';
+import {Form,Modal,Button,Alert,Spinner} from 'react-bootstrap';
 import {ProfileApi} from '../../API/Profile.API';
 
 class EditProfileModal extends React.Component {

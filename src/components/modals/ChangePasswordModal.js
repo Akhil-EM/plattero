@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form,Modal,Button,Alert,Col,Spinner} from 'react-bootstrap';
+import {Form,Modal,Button,Alert,Spinner} from 'react-bootstrap';
 import {ProfileApi} from '../../API/Profile.API';
 
 class ChangePasswordModal extends React.Component {
@@ -16,7 +16,8 @@ class ChangePasswordModal extends React.Component {
 			passwordMissMatchError:false,
 		    apiLoading:false,
 		    oldPasswordApiError:false,
-		    newPasswordApiError:false}
+		    newPasswordApiError:false,
+		    passwordMatching:false}
 	}
 
     
@@ -38,6 +39,7 @@ class ChangePasswordModal extends React.Component {
 										apiLoading:false,},()=>{
 
 							this.props.onHide();
+							this.props.showToast();
 						 });
 						 
 					  }).catch((error)=>{
@@ -59,7 +61,8 @@ class ChangePasswordModal extends React.Component {
 			oldPasswordError:false,
 			newPasswordError:false,
 			confirmPasswordError:false,
-		    passwordMissMatchError:false});
+		    passwordMissMatchError:false,
+			passwordMatching:false});
 
 		if(!this.state.oldPassword){
 			hasError=true;
@@ -73,12 +76,17 @@ class ChangePasswordModal extends React.Component {
 			hasError=true;
             this.setState({confirmPasswordError:true});		
 		}
-		if(this.state.newPassword != this.state.confirmPassword){
+		if(this.state.newPassword !== this.state.confirmPassword){
 			hasError=true;
            this.setState({passwordMissMatchError:true})
 		}
+		if(this.state.newPassword===this.state.oldPassword){
+			hasError=true;
+			this.setState({passwordMatching:true})
+		}
 		return hasError;
 	}
+
 	
 
 	render() {
@@ -95,13 +103,18 @@ class ChangePasswordModal extends React.Component {
 			  <Modal.Body>
 					{this.state.oldPasswordApiError &&
 						<Alert  variant='warning' className='text-center'>
-						old password is not correct
+						Old password is not correct
 						</Alert> }
 
 					{this.state.newPasswordApiError &&
 					 <Alert  variant='warning' className='text-center'>
-					  new password must be at least 6 characters
+					  New password must be at least 6 characters
 					 </Alert>} 
+					 {  this.state.passwordMatching &&
+						<Alert  variant='warning' className='text-center'>
+						   There is no change in password
+						</Alert>
+					 }
 				
 			    <Form>
                <div className="form-row">

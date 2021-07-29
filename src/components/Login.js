@@ -119,7 +119,7 @@ class Login extends React.Component {
 										 <span>
 									       <Spinner animation="grow" size="sm" className='mr-1' />
 						                   please wait...
-									     </span>:'Sign In'
+									      </span>:'Sign In'
 									 }
 									 
 									 

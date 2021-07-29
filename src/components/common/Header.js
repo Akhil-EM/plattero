@@ -1,6 +1,6 @@
 import React from 'react';
 import {NavLink,Link} from 'react-router-dom';
-import {Navbar,Nav,Container,NavDropdown,Image,Badge, Spinner} from 'react-bootstrap';
+import {Navbar,Nav,Container,NavDropdown,Image, Spinner} from 'react-bootstrap';
 import DropDownTitle from '../common/DropDownTitle';
 import CartDropdownHeader from '../cart/CartDropdownHeader';
 import CartDropdownItem from '../cart/CartDropdownItem';
@@ -33,10 +33,7 @@ class Header extends React.Component {
 	    };
 	}
 
-	componentWillMount(){
-		this.getInitialData();
-	}
-    
+
 	getInitialData=()=>{
 		this.setState({loadingData:true});
 		HeaderApi.getCartData()
@@ -45,17 +42,14 @@ class Header extends React.Component {
 						            cartItems:response.data.data.cartitems,
 						            loadingData:false});
 				 }).catch((error)=>{
-					 console.log(error)
 					 this.setState({loadingData:false});
 				 })
 	}
-    searchChanged=(event)=>this.setState({searchFor:event.target.value});
+
+    searchChanged=(event)=>{
+		this.setState({searchFor:event.target.value});
+	}
 	
-	// setLocation=(_latitude,_longitude,_address)=>{
-	// 	console.log(_latitude,_longitude,_address);
-		
-	// 	window.location.reload();
-	// }
 
     setIsNavExpanded = (isNavExpanded) => {
       this.setState({ isNavExpanded: isNavExpanded });
@@ -66,7 +60,6 @@ class Header extends React.Component {
 
     handleClick = (e) => {
       if (this.node.contains(e.target)) {
-        // if clicked inside menu do something
       } else {
         // If clicked outside menu, close the navbar.
         this.setState({ isNavExpanded: false });
@@ -74,6 +67,7 @@ class Header extends React.Component {
     }
   
 	componentDidMount() {
+		this.getInitialData();
 	    document.addEventListener('click', this.handleClick, false);   
 		if(localStorage.getItem("latitude") === null){
 			this.setState({showDeliveryAddressSelector:true})
@@ -111,8 +105,7 @@ class Header extends React.Component {
 	render() {
     	return (
     		<div ref={node => this.node = node}>
-				{/* this.state.showDeliveryAddressSelector */}
-				{/* setLocation={this.setLocation} */}
+				
 			<SetAddressModal show={this.state.showDeliveryAddressSelector} onHide={this.hideAddressSelector}/>
 			<Navbar onToggle={this.setIsNavExpanded}
                expanded={this.state.isNavExpanded} color="light" expand='lg' className="navbar-light osahan-nav shadow-sm">
@@ -122,19 +115,20 @@ class Header extends React.Component {
 				  </Navbar.Brand>
 			      <Navbar.Toggle/>
 			      <Navbar.Collapse id="navbarNavDropdown">
+					  
 			         <Nav className="ml-auto" onSelect={this.closeMenu}>
-						<Nav.Link>
-						   <div className='header-search'>
-						      <input type='text' 
-							         placeholder="Search for dishes in plattero"
-									 value={this.state.searchFor}
-									 onChange={this.searchChanged}
-									 />
-							  <MdSearch fontSize='2em' width='10%'
-							            onClick={()=>this.navigate('menu')}/>
-						   </div>
-                           
-						</Nav.Link>
+						 {/* Nav.link preventing space bar entering. */}
+						<div className='nav-link'> 
+							<div className='header-search'>
+								<input type='text' 
+									placeholder="Find your favorite food now..."
+									value={this.state.searchFor}
+									onChange={this.searchChanged}
+									onKeyPress={(e) => e.key === 'Enter' && this.navigate('menu')}/>
+								<MdSearch fontSize='2em' width='10%' style={{cursor:'pointer'}}
+									onClick={()=>this.navigate('menu')}/>
+							</div>
+						</div>
 						<Nav.Link className='app-text-main' onClick={this.showAddressSelector}>
 							<MdLocationOn fontSize='1.5em'/>
 							{
@@ -220,9 +214,13 @@ class Header extends React.Component {
 												iconClass='text-success food-item'
 												title={item.name}
 												qty={" X "+item.qty}
-												price={Config.CURRENCY+" "+(item.special_price===null?item.price:item.special_price)}/>
+												price={Config.CURRENCY+" "+(item.special_price===null?item.price:item.special_price)+"/Item"}/>
 											
 										))
+									}
+									{
+										this.state.cartItems.length<=0 &&
+										<p>nothing found in your cart...!</p>
 									}
 			                  </div>}
 							 { !this.state.loadingData &&

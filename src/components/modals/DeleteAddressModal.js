@@ -2,7 +2,6 @@ import React from 'react';
 import {Modal,Button} from 'react-bootstrap';
 
 class DeleteAddressModal extends React.Component {
-
 	render() {
     	return (
 	        <Modal 

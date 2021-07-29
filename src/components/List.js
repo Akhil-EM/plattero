@@ -1,16 +1,11 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
 import {Row,Col,Container,Button,Spinner,Image} from 'react-bootstrap';
-import Icofont from 'react-icofont';
-import PageTitle from './common/PageTitle';
 import CardItem from './common/CardItem';
-import CategoriesCarousel from './common/CategoriesCarousel';
 import Config from '../CONFIG'
 import  {CommonApi} from '../API/Common.API';
 import {HomeApi} from '../API/Home.API';
 import { ProfileApi } from '../API/Profile.API';
 import OwlCarousel from 'react-owl-carousel3';
-import ProductBox from './home/ProductBox';
 import BannerCard from './home/BannerCard';
 
 let favoriteRestaurantIdList=[];
@@ -28,7 +23,7 @@ class List extends React.Component {
 		}
 	}
 
-	componentWillMount(){
+	componentDidMount(){
 		this.getInitialData();
 		
 	}
@@ -101,6 +96,7 @@ class List extends React.Component {
     		<>  
 	    		<section className="section pt-2 pb-5 products-listing">
 			        <Container>
+					
 					{this.state.bannerDisplay &&
                          <Row >
 						 <Col md={9}>
@@ -140,11 +136,12 @@ class List extends React.Component {
 						  
 			               <Col >
 			                  <Row>
-							    { (restaurantList.length==0 && this.state.loaderDisplay =='none')&&
+							    { (restaurantList.length===0 && this.state.loaderDisplay ==='none')&&
 									<div className='text-center  w-100 mt-5' style={{height:'250px'}}>
                                         <h4 className='text-ash'>No Restaurant's found for this location...!</h4>
 									</div>
 								}
+								
 								{
 								  restaurantList.map((item,key)=>(
 									<Col md={3} sm={4} className="mb-4 pb-2" key={key}>
@@ -174,6 +171,7 @@ class List extends React.Component {
 			                        	<Spinner animation="grow" size="sm" className='mr-1' />
 				                        Loading...
 			                        </Button>  
+									<div style={{height:'250px'}}/>
 			                     </Col>
 			                  </Row>
 			               </Col>

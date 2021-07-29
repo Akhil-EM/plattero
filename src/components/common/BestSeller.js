@@ -1,12 +1,12 @@
 import React from 'react';
 import {Link,withRouter} from 'react-router-dom';
-import {Image,Badge,Button} from 'react-bootstrap';
+import {Image,Button} from 'react-bootstrap';
 import PropTypes from 'prop-types'; 
 import Icofont from 'react-icofont';
 import {CheckoutApi} from '../../API/Checkout.API';
 import { useToasts } from 'react-toast-notifications'
 import ChangeCartDataModel from '../modals/ChangeCartDataModel';
-
+import VariantSelectModal from '../modals/VariantSelectModal';
 
 function withToast(Component) {
   return function WrappedComponent(props) {
@@ -24,9 +24,12 @@ class BestSeller extends React.Component {
       max:this.props.maxValue || 5,
       min:this.props.minValue || 0,
       showAlert:false,
-      alertMessage:''
+      alertMessage:'',
+      showVariant:false
     };
   }
+
+  hideVariant=()=>this.setState({showVariant:false})
 
   IncrementItem = () => {
     CheckoutApi.updateCartQuantity(this.props.id,this.state.quantity)
@@ -54,21 +57,39 @@ class BestSeller extends React.Component {
     }
   }
  
-  componentDidMount(){
-    console.log(this.props.isServiceable?"yes one"+this.props.title:'no iam not')
-  }
+  // componentDidMount(){
+  //   // console.log(this.props.isServiceable?"yes one"+this.props.title:'no iam not')
+  // }
+
   addToCart=()=>{
-    
-    if(!this.props.isServiceable){
-       return this.props.addToast("This restaurant is not serviceable.", { appearance: 'warning' });
+    // console.log(this.props.isServiceable)
+    // if(!this.props.isServiceable){
+    //    return this.props.addToast("This restaurant is not serviceable.", { appearance: 'warning' });
+    // }
+    if(this.props.variants!==null){
+     return  this.setState({showVariant:true});
     }
-    CheckoutApi.addToCart(this.props.id)
+    
+    this.addToCartAPiCall('normal',this.props.id,null);
+  }
+
+  addToCartAPiCall=(_usedFor,_id=this.props.id,_variationId)=>{
+           CheckoutApi.addToCart(_id,_variationId)
                .then((response)=>{
-                  console.log(response)
+                  if(_usedFor==='variant'){
+                    this.setState({showVariant:false})
+                  }
                   this.setState({quantity:1})
                   this.props.addToast("Item added to cart..!", { appearance: 'success' });
-                  window.location.reload();
+                  setTimeout(()=>{
+                    window.location.reload();
+                  },1000)
                }).catch((error)=>{
+                  this.props.addToast(error.response.data.message, { appearance: 'warning' });
+                
+                  if(_usedFor==='variant'){
+                    this.setState({showVariant:false})
+                  }
                  let str='Your cart contain dishes';
                  let errorMessage=error.response.data.message;
                  if(errorMessage==='Unauthenticated.'){
@@ -81,7 +102,6 @@ class BestSeller extends React.Component {
                   }
                });
   }
-
   clearCartAndAddNewProducts=()=>{
        CheckoutApi.clearCartAndAddNewProducts(this.props.id)
                   .then(()=>{
@@ -100,14 +120,22 @@ class BestSeller extends React.Component {
                                  onHide={this.hideAlert}
                                  message={this.state.alertMessage}
                                  clearCart={this.clearCartAndAddNewProducts}/>
+            <VariantSelectModal show={this.state.showVariant}
+                                productName={this.props.title}
+                                onHide={this.hideVariant}
+                                variants={this.props.variants}
+                                menuId={this.props.id}
+                                addToCart={this.addToCartAPiCall}/>
                <div className="list-card-image">
-                  <Link to="">
+                  <Link to="#">
                     <Image src={this.props.image} className={this.props.imageClass} alt={this.props.imageAlt} />
                   </Link>
+                  {this.props.variants!==null &&
+                    <span className='badge badge-info'>customizable</span>}
                </div>
                <div className="p-3 position-relative">
                   <div className="list-card-body">
-                     <h6 className="mb-1"><Link to="" className="text-black">{this.props.title}</Link></h6>
+                     <h6 className="mb-1"><Link to="#" className="text-black">{this.props.title}</Link></h6>
                      {this.props.subTitle ? (
                        <p className="text-gray mb-3">{this.props.subTitle}</p>
                        )
@@ -133,15 +161,16 @@ class BestSeller extends React.Component {
                           
                            {/* {(this.props.isNew)? (<Badge variant="success" className='ml-1'>NEW</Badge>):"" } */}
                            
-                         {this.state.quantity===0?
+                         {this.state.quantity===0 &&
                             <span className="float-right"> 
-                              <Button variant='outline-secondary' onClick={this.addToCart} size="sm">ADD</Button>
+                              <Button variant='outline-secondary' onClick={()=>this.addToCart()} size="sm">ADD</Button>
                             </span>
-                            :
+                          }
+                          {this.state.quantity>0 &&
                             <span className="count-number float-right">
                                <Button variant="outline-secondary" onClick={()=>this.props.history.push('/checkout')} className="btn-sm left dec"><Icofont icon="cart" />View in cart</Button>
                             </span>
-                         }
+                          }       
                        </p>
                        ):''
                    }

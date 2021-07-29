@@ -28,7 +28,7 @@ class QuickBite extends React.Component {
                  this.setState((prevState,props)=>({
                      quantity:prevState.quantity +1
                   }),()=>{
-                    this.props.renderParent();
+                     this.props.renderParent();
                   })
                   
                }).catch((error)=>{
@@ -57,6 +57,7 @@ class QuickBite extends React.Component {
                 .then(()=>{
                   this.props.addToast("Item removed from cart..!", { appearance: 'success' });
                   this.props.renderParent();
+                  window.location.reload();
                 }).catch((error)=>{
                   console.log(error)
   });

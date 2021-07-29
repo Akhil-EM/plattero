@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link,withRouter} from 'react-router-dom';
+import {withRouter} from 'react-router-dom';
 import {Image,Badge,Spinner} from 'react-bootstrap';
 import PropTypes from 'prop-types'; 
 import Icofont from 'react-icofont';
@@ -101,9 +101,18 @@ class CardItem extends React.Component {
 							<Spinner animation="grow" size="sm" variant="light"/>	
 						}
                   </div>
-                  <div onClick={()=>this.navigate(this.props.id)} style={{cursor:'pointer'}}>
-                  	<Image src={this.props.image} className={this.props.imageClass} alt={this.props.imageAlt} />
-                  </div>
+
+					<div onClick={()=>this.navigate(this.props.id)} style={{cursor:'pointer'}}>
+						<Image  src={this.props.image} className={this.props.imageClass} alt={this.props.imageAlt} />
+					</div>
+
+				  { !this.props.isServiceable &&
+					<span className='badge  badge-warning'>
+					  not serviceable
+				    </span>}
+				 
+				  
+                  
                </div>
                <div className="p-3 position-relative">
                   <div className="list-card-body">

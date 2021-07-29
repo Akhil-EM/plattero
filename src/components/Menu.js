@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import {CommonApi} from '../API/Common.API';
-import {Row,Col,Container,Form,InputGroup,Button,Tab,Nav,Image,Badge,Spinner} from 'react-bootstrap';
+import {Row,Col,Container,Button,Nav,Image,Spinner} from 'react-bootstrap';
 import BestSeller from './common/BestSeller';
 import Config from '../CONFIG';
-import {AiOutlineClose} from 'react-icons/ai'
-import {withRouter} from 'react-router-dom'
+import {AiOutlineClose} from 'react-icons/ai';
+import {withRouter} from 'react-router-dom';
+import {HeaderApi} from '../API/Header.API';
 class Menu extends Component {
     constructor(props) {
         super(props)
@@ -19,29 +20,47 @@ class Menu extends Component {
              searchTerm2:this.props.location.state.searchTerm,
              categoryId:this.props.match.params.id
         }
-
+        this.cartIdList=[];
+       
     }
 
     componentDidMount(){
+        this.getCartData();
         this.getInitialData();
     }
     
+    getCartData=()=>{
+        HeaderApi.getCartData()
+          .then((response)=>{
+              let resArray=response.data.data.cartitems;
+              if(resArray.length <=0){
+                  if(this.state.searchTerm==='')return this.getFoodList(0,0,'');
+                  else return  this.getFoodList(0,0,this.state.searchTerm);
+              }
+              //get cart  product id and quantity
+              resArray.forEach(item=>{
+                  this.cartIdList.push({id:parseInt(item.id),qty:parseInt(item.qty)});
+                  if(this.cartIdList.length===resArray.length){
+                    if(this.state.searchTerm==='')return  this.getFoodList(0,0,'');
+                    else return  this.getFoodList(0,0,this.state.searchTerm);
+                  }
+              });
+          }).catch((error)=>{
+            if(this.state.searchTerm===''){return  this.getFoodList(0,0,'');}
+            else {  
+                this.getFoodList(0,0,this.state.searchTerm);
+                return this.setState({loaderDisplay:false}); 
+            }
+          });
+    }
     
-    // static getDerivedStateFromProps(props, state) {
-    //     console.log('props state')
-    //     if(props.location.state.searchTerm !== state.searchTerm){
-    //         return{
-    //             searchTerm:props.location.state.searchTerm,
-    //         };
-    //     }
-    //     return null;
-    // }
-	
 
     getInitialData(){
         this.setState({loaderDisplay:true})
-        
-        CommonApi.categories(0)
+            // console.log(this.state.searchTerm==='')
+            if(this.state.searchTerm===''){
+                this.getFoodList(0,0,"");
+                CommonApi.categories(0)
                  .then((response)=>{
                      this.setState({categoryList:response.data.data,
                                     loaderDisplay:false})
@@ -49,8 +68,8 @@ class Menu extends Component {
                      console.log(error)
                      this.setState({loaderDisplay:false})
                  });
-       
-            if(this.state.searchTerm==='') this.getFoodList(0,0,"");
+
+            }
             else this.getFoodList(0,0,this.state.searchTerm);
 
        
@@ -61,13 +80,12 @@ class Menu extends Component {
 			           selectedNavItem:_navItemId})
 		CommonApi.products(1,_categoryId,"",100,_searchString,"",'desc')
 	            .then((response)=>{
-				  
-                //   console.log(response.data.data)
+
 				  this.setState({foodList:response.data.data.products,
                                  loaderDisplay:false,
                                  loaderTwoDisplay:false});
 				}).catch((error)=>{
-					console.log(error.response.data.message)
+					console.log(error)
 					this.setState({loaderDisplay:false,
                                    loaderTwoDisplay:false})
 				})
@@ -77,21 +95,30 @@ class Menu extends Component {
 	}
 
     closeSearch=()=>{
-    //    this.setState({searchTerm:''});
-    //    this.getFoodList(0,0,"")
+       this.setState({searchTerm:''});
+       this.getFoodList(0,0,"")
     this.props.history.push({pathname:`/menu/0`,
     search: `?search_input=`,
     state:{from:'search',searchTerm:''}
 });
-    }
+}
     
-    componentDidUpdate(prevProps){
+componentDidUpdate(prevProps){
 
         if (this.props.location.state.searchTerm !== prevProps.location.state.searchTerm) {
             this.setState({searchTerm:this.props.location.state.searchTerm});
             this.getFoodList(0,0,this.props.location.state.searchTerm);
         }
+}
+
+checkProductInCart(_productId){
+    let count=0;
+    for(let i=0;i<this.cartIdList.length;i++){
+        if(this.cartIdList[i].id===_productId) count=this.cartIdList[i].qty;
     }
+    return count;
+
+}
     
     render(){
         return (
@@ -120,8 +147,8 @@ class Menu extends Component {
                         <Col md={12}>
                             
                             <Nav  id="pills-tab">
-                            <Nav.Item  onClick={()=>this.getFoodList('',0,"")}>
-                                    <Nav.Link className={`${this.state.selectedNavItem===0?'nav-active-item':''}`}>All</Nav.Link>
+                                <Nav.Item  onClick={()=>this.getFoodList(0,0,"")}>
+                                 <Nav.Link className={`${this.state.selectedNavItem===0?'nav-active-item':''}`}>All</Nav.Link>
                                 </Nav.Item>
                                 {
                                     this.state.categoryList.map((item,key)=>(
@@ -157,7 +184,7 @@ class Menu extends Component {
             <Container>
         
                  {this.state.foodList.length<=0?
-                    <Container>
+                 <Container>
 		            <Row>
 		               <Col md={12} className="text-center pt-5 pb-5">
 		                  <Image className="img-fluid" src="/img/404.png" alt="404" />
@@ -169,15 +196,14 @@ class Menu extends Component {
 		         </Container>
                  :''}
 				 <Row>
-					{
-						this.state.foodList.map((item,key)=>(
-							   <Col  md={4} sm={6} className="mb-4 " key={key}>
-									<BestSeller 
+                     {
+                        this.state.foodList.map((item,key)=>(
+                            <Col  md={4} sm={6} className="mb-4 " key={key}>
+                                 <BestSeller 
 										id={item.id}
 										title={item.name}
-										// subTitle='North Indian • American • Pure veg'
 										imageAlt={item.url_key}
-										image={item.image===null?'':item.image}
+										image={item.image==null?'':item.image}
 										imageClass='img-fluid custom-image'
 										price={item.price}
 										priceUnit={Config.CURRENCY}
@@ -187,13 +213,17 @@ class Menu extends Component {
 										promotedVariant='dark'
 										favIcoIconColor='text-danger'
 										rating='3.1 (300+)'
-                                        isServiceable={item.is_servicable}
 										getValue={this.getQty}
-									/>
-							    </Col>
-								))
-							}
-						</Row>
+										isServiceable={item.is_servicable}
+										renderParent={this.getCartData}
+										qty={this.checkProductInCart(item.id)}
+										variants={item.variations}/>
+                             </Col>
+                             ))
+
+                     }
+					
+				</Row>
 		           
 				</Container>}
                 {

@@ -127,8 +127,7 @@ class HelpAndSupport extends Component {
 						</div>
 						<div  className="mt-3">
 						  message
-                          <textarea className="form-control" 
-						            rows="3"
+                          <textarea rows="3"
 									name='message'
 									onChange={this.onChange}
 									className={`form-control ${this.state.messageError?'is-invalid':''}`}></textarea>

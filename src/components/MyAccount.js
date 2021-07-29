@@ -8,6 +8,14 @@ import Addresses from './myaccount/Addresses';
 import EditProfileModal from './modals/EditProfileModal';
 import {ProfileApi} from '../API/Profile.API';
 import ChangePasswordModal from './modals/ChangePasswordModal';
+import { useToasts } from 'react-toast-notifications'
+
+function withToast(Component) {
+  return function WrappedComponent(props) {
+    const toastFuncs = useToasts()
+    return <Component {...props} {...toastFuncs} />;
+  }
+}
 class MyAccount extends React.Component {
   constructor(props, context) {
     super(props, context);
@@ -48,6 +56,9 @@ class MyAccount extends React.Component {
       this.props.history.push('/');
       window.location.reload();
   }
+  showToast=()=>{
+   this.props.addToast('PAssword updated successfully..!', { appearance: 'success' });
+  }
 	render() {
     	return (
     		<>
@@ -57,7 +68,8 @@ class MyAccount extends React.Component {
                           renderParent={this.loadInitialData}/>
        <ChangePasswordModal show={this.state.showEditPassword} 
                             onHide={this.hideEditPassword}
-                            renderParent={this.loadInitialData}/>
+                            renderParent={this.loadInitialData}
+                            showToast={this.showToast}/>
         <section className="section pt-4 pb-4 osahan-account-page">
            <Container>
               <Row>
@@ -123,4 +135,4 @@ class MyAccount extends React.Component {
 }
 
 
-export default MyAccount;
+export default withToast(MyAccount);

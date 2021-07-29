@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types'; 
 import {Link} from 'react-router-dom';
-import {Row,Col,Container,Form,InputGroup,FormControl,Button,Image} from 'react-bootstrap';
-import FontAwesome from './FontAwesome';
+import {Row,Col,Container} from 'react-bootstrap';
 
 class Footer extends React.Component {
 

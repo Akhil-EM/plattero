@@ -61,6 +61,7 @@ class Addresses extends React.Component {
     hideEditAddressModal=()=> this.setState({editAddressModal:false});
     showEditAddressModal=(_firstName,_lastName,_addressLine1,_addressLine2,
 		                  _city,_pincode,_state,_id,_latitude,_longitude)=>{
+
 		this.setState({firstName:_firstName,
 						lastName:_lastName,
 						addressLine1:_addressLine1,
@@ -84,8 +85,8 @@ class Addresses extends React.Component {
 								deleteAddress={this.deleteAddress}/>
 			<EditAddressModal show={this.state.editAddressModal}
 			                  onHide={this.hideEditAddressModal}
-							  fName={this.state.firstName}
-							  lName={this.state.lastName}
+							  firstName={this.state.firstName}
+							  lastName={this.state.lastName}
 							  addLine1={this.state.addressLine1}
 							  addLine2={this.state.addressLine2}
 							  city={this.state.city}

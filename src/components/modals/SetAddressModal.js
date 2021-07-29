@@ -36,7 +36,7 @@ class SetAddressModal extends Component {
 		        centered
 		   	  >
 			  <Modal.Header closeButton={true}>
-			    <Modal.Title as='h5' id="edit-profile">Select Delivery Address</Modal.Title>
+			    <Modal.Title as='h5' id="edit-profile">Select Your Location</Modal.Title>
 			  </Modal.Header>
 			  <Modal.Body className='p-0' >
 				<div style={{height:'400px'}}>

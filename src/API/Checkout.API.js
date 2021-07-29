@@ -24,10 +24,11 @@ const CheckoutApi={
             headers:{Authorization:`Bearer ${Config.API_TOKEN}`}
         })
     },
-    addToCart:(_menu_id)=>{
+    addToCart:(_menu_id,_variantId)=>{
         return http.post(Config.APPLICATION_URL_SECOND+'carts/mine/items',
         {menu_id:_menu_id,
          qty:1,
+         variation_id:_variantId,
          request_from: "web"},
         {headers:{Authorization:`Bearer ${Config.API_TOKEN}`}})
     },

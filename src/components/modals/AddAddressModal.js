@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form,InputGroup,Modal,FormControl,Button} from 'react-bootstrap';
+import {Form,Modal,Button,Spinner} from 'react-bootstrap';
 import {ProfileApi} from '../../API/Profile.API';
 import MapLoader2 from '../common/MapLoader2';
 class AddAddressModal extends React.Component {
@@ -25,11 +25,13 @@ class AddAddressModal extends React.Component {
 			 invalidPincodeError:false,
 			 longitude:null,
 			 latitude:null,
-			 address:null
+			 address:null,
+			 formSubmitting:false
 		}
 	}
     
 	submitForm=()=>{
+		this.setState({formSubmitting:true})
         if(!this.validateForm()){
 			ProfileApi.addNewAddress(this.state.firstName,this.state.lastName,
 				                     this.state.addressLine1,this.state.addressLine2,
@@ -51,7 +53,8 @@ class AddAddressModal extends React.Component {
 										cityError:false,
 										pincodeError:false,
 										stateError:false,
-										invalidPincodeError:false},
+										invalidPincodeError:false,
+									    formSubmitting:false},
 								()=>{
                                     this.props.renderParent();
 						            this.props.onHide();
@@ -59,6 +62,7 @@ class AddAddressModal extends React.Component {
                           
 					  }).catch((error)=>{
 						  console.log(error);
+						  this.setState({formSubmitting:false})
 					  })
 		}
 	}
@@ -100,7 +104,7 @@ class AddAddressModal extends React.Component {
 			this.setState({pincodeError:true});
 		}
 
-		if((this.state.pincode).length !=6){
+		if((this.state.pincode).length !==6){
 			formError=true;
 			this.setState({pincodeError:true,
 				           invalidPincodeError:true});
@@ -118,6 +122,7 @@ class AddAddressModal extends React.Component {
 
 
 	onInputItemChange=(e)=>{
+		e.preventDefault();
         this.setState({[e.target.name]:e.target.value});
     }
 	
@@ -221,10 +226,16 @@ class AddAddressModal extends React.Component {
 
 			  <Modal.Footer>
 			    <Button type='button' onClick={this.props.onHide} variant="outline-primary" className="d-flex w-50 text-center justify-content-center">CANCEL</Button>
-			    <Button type='button' 
-				        variant="primary" 
-				        className='d-flex w-50 text-center justify-content-center'
-						onClick={this.submitForm}>SUBMIT</Button>
+				{ !this.state.formSubmitting?
+					<Button type='button' 
+							variant="primary" 
+							className='d-flex w-50 text-center justify-content-center'
+							onClick={this.submitForm}>SUBMIT</Button>:
+					<Button variant="primary" type="button" disabled="" className='d-flex w-50 text-center justify-content-center'>
+						<Spinner animation="grow" size="sm" className='mr-1' />
+						Please wait...
+					</Button> 
+	           }
 			  </Modal.Footer>
 			</Modal>
     	);
